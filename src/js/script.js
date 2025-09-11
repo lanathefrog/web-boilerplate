@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewEmail = document.getElementById('teacherEmail');
     const viewPhone = document.getElementById('teacherPhone');
     const viewNotes = document.getElementById('teacherNotes');
-
     teacherCards.forEach(card => {
         const avatarWrapper = card.querySelector('.avatar-wrapper');
         const nameElement = card.querySelector('h2');
@@ -55,8 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const name = nameElement.innerText.replace('\n', ' ');
-            const speciality = card.querySelector('.field').innerText;
-            const country = card.querySelector('.country').innerText;
+
+            const specialityEl = card.querySelector('.field');
+            const speciality = specialityEl ? specialityEl.innerText : 'Not specified';
+
+            const countryEl = card.querySelector('.country');
+            const country = countryEl ? countryEl.innerText : 'Not specified';
 
             const age = '35';
             const gender = 'Male';
@@ -81,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.click();
         });
     });
+
 
 
 
@@ -112,8 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bgcolor,
             notes
         });
-
-        alert(`Teacher ${name} has been added successfully!`);
 
         addModal.style.display = 'none';
         addTeacherForm.reset();
