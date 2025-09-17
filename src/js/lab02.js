@@ -56,7 +56,7 @@ function formatUser(raw) {
         phone: raw.phone,
         picture_large: raw.picture?.large || raw.picture_large,
         picture_thumbnail: raw.picture?.thumbnail || raw.picture_thumbnail,
-        id: raw.id?.value || raw.id || generateID(),
+        id: raw.id?.value ? raw.id.value : generateID(),
         favorite: (raw.favorite === undefined || raw.favorite === null) ? pickRandomBoolean() : raw.favorite,
         course: (raw.course === undefined || raw.course === null) ? pickRandomCourse() : raw.course,
         bg_color: raw.bg_color || generateBackgroundColor(),
@@ -133,6 +133,7 @@ function normalizeCapitalizedString(value) {
 
 function isValidEmail(value) {
     if (value === undefined) return false;
+
     return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
@@ -160,6 +161,7 @@ function normalizeFullName(fullName) {
 
 function validateUser(user) {
     if (isNaN(user.age)) {
+        console.error("Invalid age for user:", user.id, " ", user.full_name);
         return false;
     }
 
@@ -173,8 +175,16 @@ function validateUser(user) {
     if (user.phone) {
         user.phone = normalizePhone(user.phone);
     }
+    if (!isValidPhone(user.phone)) {
+        console.error("Invalid phone for user:", user.id, " ", user.full_name);
+        return false;
+    }
 
-    return isValidEmail(user.email) && isValidPhone(user.phone);
+    if (!isValidEmail(user.email)) {
+        console.error("Invalid email for user:", user.id, " ", user.full_name);
+        return false;
+    }
+    return true;
 }
 
 function validateUsers(users) {
