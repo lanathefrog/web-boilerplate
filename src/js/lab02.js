@@ -206,13 +206,11 @@ function filterUsers(users, filters) {
 
             if (typeof filterValue === "string") {
                 if (userValue !== filterValue) return false;
-            }
 
-            if (Array.isArray(filterValue)) {
+            } else if (Array.isArray(filterValue)) {
                 if (!filterValue.includes(userValue)) return false;
-            }
 
-            if (typeof filterValue === "object" && filterValue !== null) {
+            } else if (typeof filterValue === "object" && filterValue !== null) {
                 const { min, max } = filterValue;
                 if (typeof userValue !== "number") return false;
                 if (min !== undefined && userValue < min) return false;
@@ -222,6 +220,7 @@ function filterUsers(users, filters) {
         return true;
     });
 }
+
 console.log("--------- TASK 3 ---------");
 const filtered1 = filterUsers(allUsers, {
     country: "Norway",
