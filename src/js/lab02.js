@@ -248,29 +248,13 @@ function sortUsers(users, key, order = "asc") {
         const valB = b[key];
 
         if (typeof valA === "number" && typeof valB === "number") {
-            if (order === "asc") {
-                if (valA > valB) return 1;
-                if (valA < valB) return -1;
-                return 0;
-            } else {
-                if (valA > valB) return -1;
-                if (valA < valB) return 1;
-                return 0;
-            }
+            return order === "asc" ? valA - valB : valB - valA;
         }
 
         if (typeof valA === "string" && typeof valB === "string") {
-            const aLower = valA.toLowerCase();
-            const bLower = valB.toLowerCase();
-            if (order === "asc") {
-                if (aLower > bLower) return 1;
-                if (aLower < bLower) return -1;
-                return 0;
-            } else {
-                if (aLower > bLower) return -1;
-                if (aLower < bLower) return 1;
-                return 0;
-            }
+            return order === "asc"
+                ? valA.localeCompare(valB, undefined, { sensitivity: "base" })
+                : valB.localeCompare(valA, undefined, { sensitivity: "base" });
         }
 
         return 0;
@@ -278,6 +262,7 @@ function sortUsers(users, key, order = "asc") {
 
     return sorted;
 }
+
 console.log("--------- TASK 4 ---------");
 const sortedByAge = sortUsers(allUsers, "age", "asc");
 console.log("First 5 users sorted by age ascending:", sortedByAge.slice(0, 5));
