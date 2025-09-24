@@ -196,6 +196,7 @@ console.log("first valid:", validUsers[0]);
 console.log("last valid:", validUsers[validUsers.length - 1]);
 
 // --------- TASK 3 (фільтрація з UI) ---------
+
 const ageRanges = [
     { label: "18–24", min: 18, max: 24 },
     { label: "25–30", min: 25, max: 30 },

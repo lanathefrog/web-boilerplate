@@ -126,11 +126,11 @@ function renderFavourites(usersToShow = validUsers) {
 function toggleFavourite(userId) {
     if (isFavourite(userId)) {
         favourites = favourites.filter(id => id !== userId);
-        console.log(`❌ Видалено з улюблених: ${userId}`);
+        console.log(`Видалено з улюблених: ${userId}`);
         showToast("Викладача видалено з улюблених", "error");
     } else {
         favourites.push(userId);
-        console.log(`⭐ Додано в улюблені: ${userId}`);
+        console.log(`Додано в улюблені: ${userId}`);
         showToast("Викладача додано в улюблені", "success");
     }
 
@@ -182,7 +182,7 @@ function showTeacherInfo(user) {
     document.getElementById("teacherNotes").textContent = user.note || "";
 
     const modalStar = document.getElementById("modalStar");
-    modalStar.dataset.id = user.id; // збережемо айді
+    modalStar.dataset.id = user.id;
     modalStar.src = isFavourite(user.id) ? "images/Star 1.svg" : "images/Star 2.svg";
 
     modalStar.onclick = (e) => {
@@ -211,7 +211,7 @@ function applyFilters() {
     }
 
     if (formData.get("only-favourites")) {
-        filters.id = favourites; // ми будемо перевіряти по id
+        filters.id = favourites;
     }
 
     if (formData.get("only-photo")) {
@@ -253,17 +253,13 @@ statsTable.querySelectorAll("th").forEach((th, index) => {
         });
 
         thContent.classList.add(sortOrder[key] === "asc" ? "sorted-asc" : "sorted-desc");
-
-        console.log(`🖱 Клік по "${key}", порядок: ${sortOrder[key]}`);
-
         const currentUsers = getFilteredAndSearchedUsers();
         const sortedUsers = sortUsers(currentUsers, key, sortOrder[key]);
-        currentPage = 1; // після сортування повертаємось на першу сторінку
+        currentPage = 1;
         renderStatisticsWithPagination(sortedUsers);
     });
 });
 function renderStatistics(users) {
-    console.log(`📝 Відмалюємо таблицю: ${users.length} рядків`);
     tbody.innerHTML = "";
 
     users.forEach(user => {
@@ -287,7 +283,6 @@ function renderStatisticsWithPagination(users) {
     const end = start + ROWS_PER_PAGE;
     const usersToShow = users.slice(start, end);
 
-    console.log(`📄 Сторінка ${currentPage} / ${totalPages}`);
     console.log(usersToShow.map(u => u.full_name));
 
     renderStatistics(usersToShow);
@@ -300,7 +295,6 @@ function renderPaginationButtons(totalPages, users) {
         const btn = document.createElement("button");
         btn.textContent = i;
 
-        // підсвічуємо активну
         if (i === currentPage) btn.classList.add("active");
 
         btn.addEventListener("click", () => {
@@ -344,7 +338,6 @@ function searchUsers(users, query) {
 }
 function updateViews() {
     const query = searchInput.value;
-    console.log("🔍 Пошук:", query);
 
     const filteredUsers = applyFilters();
     const searchedUsers = searchUsers(filteredUsers, query);
@@ -352,7 +345,7 @@ function updateViews() {
     renderTeachers(searchedUsers);
 
     const sortedUsers = sortUsers(searchedUsers, getCurrentSortKey(), getCurrentSortOrder());
-    currentPage = 1; // після пошуку повертаємось на першу сторінку
+    currentPage = 1;
     renderStatisticsWithPagination(sortedUsers);
 
     favouritesRow.innerHTML = "";
@@ -418,7 +411,6 @@ function populateSelects() {
     const courses = [...new Set(validUsers.map(u => u.course))].sort();
     const countries = [...new Set(validUsers.map(u => u.country))].sort();
 
-    specialitySelect.innerHTML = `<option value="">Speciality</option>`;
     courses.forEach(c => {
         const opt = document.createElement("option");
         opt.value = c;
@@ -426,7 +418,6 @@ function populateSelects() {
         specialitySelect.appendChild(opt);
     });
 
-    countrySelect.innerHTML = `<option value="">Country</option>`;
     countries.forEach(c => {
         const opt = document.createElement("option");
         opt.value = c;
@@ -481,7 +472,7 @@ addForm.addEventListener("submit", (e) => {
     };
 
     validUsers.push(newTeacher);
-    showToast("✅ Викладача додано!", "success");
+    showToast("Викладача додано!", "success");
 
     renderTeachers(applyFilters());
     renderFavourites();
@@ -526,14 +517,4 @@ function updateActiveTabs(activeName) {
 
 document.querySelectorAll(".tabs .tab").forEach(tab => {
     tab.addEventListener("click", handleTabClick);
-});
-
-
-window.addEventListener("scroll", () => {
-    const scrollPos = window.scrollY;
-    for (const [name, section] of Object.entries(sections)) {
-        if (scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
-            updateActiveTabs(name);
-        }
-    }
 });
