@@ -290,3 +290,5 @@ function getPercentage(users, predicate) {
 console.log("--------- TASK 6 ---------");
 const percentOver30 = getPercentage(allUsers, user => user.age > 30);
 console.log("Percentage of users over 30:", percentOver30.toFixed(2) + "%");
+
+export {validUsers};

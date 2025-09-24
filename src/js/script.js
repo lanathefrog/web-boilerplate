@@ -1,126 +1,125 @@
-document.addEventListener('DOMContentLoaded', () => {
+import { validUsers } from "./lab02.js";
+console.log(validUsers.length);
+console.log("validUsers IDs:", validUsers.map(u => u.id));
 
 
-    const addTeacherBtns = document.querySelectorAll('.add-teacher');
-    const addModal = document.getElementById('addModal');
-    const viewModal = document.getElementById('viewModal');
-    const addCloseBtn = document.querySelector('.add-close');
-    const viewCloseBtn = document.querySelector('.view-close');
+const teachersList = document.querySelector(".teachers-list");
+const favouritesRow = document.querySelector(".favourites-row");
+const viewModal = document.getElementById("viewModal");
+const viewClose = document.querySelector(".view-close");
 
-    addTeacherBtns.forEach(button => {
-        button.addEventListener('click', () => {
-            addModal.style.display = 'block';
-        });
+let favourites = validUsers.filter(u => u.favorite).map(u => u.id);
+
+function createTeacherCard(user) {
+    const card = document.createElement("div");
+    card.classList.add("teacher-card");
+
+    const avatarWrapper = document.createElement("div");
+    avatarWrapper.classList.add("avatar-wrapper");
+
+    if (user.picture_large) {
+        const img = document.createElement("img");
+        img.src = user.picture_large;
+        img.alt = `${user.full_name} Photo`;
+        avatarWrapper.appendChild(img);
+    } else {
+        avatarWrapper.classList.add("no-photo");
+        const initials = document.createElement("span");
+        initials.classList.add("initials");
+        initials.textContent = user.full_name
+            .split(" ")
+            .map(w => w[0])
+            .join(".") + ".";
+        avatarWrapper.appendChild(initials);
+    }
+
+    const star = document.createElement("img");
+    star.src = "images/Star 1.svg";
+    star.alt = "Favorite Star";
+    star.classList.add("favorite-star-icon");
+    if (favourites.includes(user.id)) {
+        star.classList.add("active");
+    }
+    star.addEventListener("click", e => {
+        e.stopPropagation();
+        toggleFavourite(user.id);
+    });
+    avatarWrapper.appendChild(star);
+
+    const info = document.createElement("div");
+    info.classList.add("teacher-info");
+    info.innerHTML = `
+        <h2>${user.full_name.replace(" ", "<br>")}</h2>
+        <p class="field">${user.course}</p>
+        <p class="country">${user.country}</p>
+    `;
+
+    card.appendChild(avatarWrapper);
+    card.appendChild(info);
+
+    card.addEventListener("click", () => showTeacherInfo(user));
+
+    return card;
+}
+
+function renderTeachers(users) {
+    console.log("Рендеримо викладачів:", users);
+    teachersList.innerHTML = "";
+    users.forEach(user => {
+        console.log("Створюю картку для:", user.full_name);
+        const card = createTeacherCard(user);
+        teachersList.appendChild(card);
+    });
+    console.log("Загалом відмалювалося:", teachersList.children.length, "карток");
+}
+
+
+function renderFavourites() {
+    favouritesRow.innerHTML = "";
+    const favUsers = validUsers.filter(u => favourites.includes(u.id));
+    console.log("Рендеримо favourites, знайдено користувачів:", favUsers);
+
+    favUsers.forEach(user => {
+        const card = createTeacherCard(user);
+        favouritesRow.appendChild(card);
     });
 
-    addCloseBtn.addEventListener('click', () => {
-        addModal.style.display = 'none';
-    });
-
-    viewCloseBtn.addEventListener('click', () => {
-        viewModal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target === addModal) {
-            addModal.style.display = 'none';
-        }
-        if (event.target === viewModal) {
-            viewModal.style.display = 'none';
-        }
-    });
+    console.log("У favourites-row відмалювалось:", favouritesRow.children.length, "карток");
+}
 
 
-    const teacherCards = document.querySelectorAll('.teacher-card');
-    const viewPhoto = document.getElementById('teacherPhoto');
-    const viewName = document.getElementById('teacherName');
-    const viewSpeciality = document.getElementById('teacherSpeciality');
-    const viewLocation = document.getElementById('teacherLocation');
-    const viewAgeGender = document.getElementById('teacherAgeGender');
-    const viewEmail = document.getElementById('teacherEmail');
-    const viewPhone = document.getElementById('teacherPhone');
-    const viewNotes = document.getElementById('teacherNotes');
-    teacherCards.forEach(card => {
-        const avatarWrapper = card.querySelector('.avatar-wrapper');
-        const nameElement = card.querySelector('h2');
+function toggleFavourite(userId) {
+    console.log("favourites зараз:", favourites);
+    if (favourites.includes(userId)) {
+        favourites = favourites.filter(id => id !== userId);
+        console.log("Прибираю з favourites:", userId);
+    } else {
+        favourites.push(userId);
+        console.log("Додаю у favourites:", userId);
+    }
 
-        card.addEventListener('click', () => {
-            let imgEl = card.querySelector('.avatar-wrapper img');
-            let imgSrc = '';
-            if (imgEl && imgEl.src) {
-                imgSrc = imgEl.src;
-            } else {
-                imgSrc = 'images/white.png';
-            }
-
-            const name = nameElement.innerText.replace('\n', ' ');
-
-            const specialityEl = card.querySelector('.field');
-            const speciality = specialityEl ? specialityEl.innerText : 'Not specified';
-
-            const countryEl = card.querySelector('.country');
-            const country = countryEl ? countryEl.innerText : 'Not specified';
-
-            const age = '35';
-            const gender = 'Male';
-            const email = 'lalala@iwannakms.com';
-            const phone = '+1234567890';
-            const notes = 'This is a great teacher with a lot of experience.';
-
-            viewPhoto.src = imgSrc;
-            viewName.textContent = name;
-            viewSpeciality.textContent = speciality;
-            viewLocation.textContent = country;
-            viewAgeGender.textContent = `${age}, ${gender}`;
-            viewEmail.textContent = email;
-            viewPhone.textContent = phone;
-            viewNotes.textContent = notes;
-
-            viewModal.style.display = 'block';
-        });
-
-        nameElement.addEventListener('click', (e) => {
-            e.stopPropagation();
-            card.click();
-        });
-    });
+    console.log("Поточний список favourites:", favourites);
+    renderTeachers(validUsers);
+    renderFavourites();
+}
 
 
+function showTeacherInfo(user) {
+    document.getElementById("teacherPhoto").src = user.picture_large || "";
+    document.getElementById("teacherName").textContent = user.full_name;
+    document.getElementById("teacherSpeciality").textContent = user.course;
+    document.getElementById("teacherLocation").textContent = `${user.city}, ${user.country}`;
+    document.getElementById("teacherAgeGender").textContent = `${user.age} y.o., ${user.gender}`;
+    document.getElementById("teacherEmail").textContent = user.email;
+    document.getElementById("teacherPhone").textContent = user.phone;
+    document.getElementById("teacherNotes").textContent = user.note || "";
 
+    viewModal.style.display = "block";
+}
 
-    const addTeacherForm = document.getElementById('addTeacherForm');
-
-    addTeacherForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById('name').value;
-        const speciality = document.getElementById('speciality').value;
-        const country = document.getElementById('country').value;
-        const city = document.getElementById('city').value;
-        const email = document.getElementById('email').value;
-        const phone = document.getElementById('phone').value;
-        const dob = document.getElementById('dob').value;
-        const sex = document.querySelector('input[name="sex"]:checked').value;
-        const bgcolor = document.getElementById('bgcolor').value;
-        const notes = document.getElementById('notes').value;
-
-        console.log({
-            name,
-            speciality,
-            country,
-            city,
-            email,
-            phone,
-            dob,
-            sex,
-            bgcolor,
-            notes
-        });
-
-        addModal.style.display = 'none';
-        addTeacherForm.reset();
-    });
-
-
-
+viewClose.addEventListener("click", () => {
+    viewModal.style.display = "none";
 });
+
+renderTeachers(validUsers);
+renderFavourites();
