@@ -1,18 +1,34 @@
-import { validUsers } from "./lab02.js";
+import { validUsers, sortUsers, generateID  } from "./lab02.js";
 console.log(validUsers.length);
-console.log("validUsers IDs:", validUsers.map(u => u.id));
-
 
 const teachersList = document.querySelector(".teachers-list");
 const favouritesRow = document.querySelector(".favourites-row");
 const viewModal = document.getElementById("viewModal");
 const viewClose = document.querySelector(".view-close");
+const filtersForm = document.querySelector(".filters");
 
 let favourites = validUsers.filter(u => u.favorite).map(u => u.id);
+
+viewClose.addEventListener("click", () => {
+    viewModal.style.display = "none";
+});
+
+viewModal.addEventListener("click", (e) => {
+    if (e.target === viewModal) {
+        viewModal.style.display = "none";
+    }
+});
+
+
+renderTeachers(applyFilters());
+renderFavourites();
+
 
 function createTeacherCard(user) {
     const card = document.createElement("div");
     card.classList.add("teacher-card");
+    card.dataset.id = user.id; // <-- додаємо айді
+
 
     const avatarWrapper = document.createElement("div");
     avatarWrapper.classList.add("avatar-wrapper");
@@ -39,6 +55,9 @@ function createTeacherCard(user) {
     star.classList.add("favorite-star-icon");
     if (favourites.includes(user.id)) {
         star.classList.add("active");
+        star.src = "images/Star 1.svg";
+    }else {
+        star.src = "images/Star 2.svg";
     }
     star.addEventListener("click", e => {
         e.stopPropagation();
@@ -62,48 +81,74 @@ function createTeacherCard(user) {
     return card;
 }
 
-function renderTeachers(users) {
-    console.log("Рендеримо викладачів:", users);
-    teachersList.innerHTML = "";
+export function renderTeachers(users) {
+    teachersList.innerHTML = "";  // очищаємо
     users.forEach(user => {
-        console.log("Створюю картку для:", user.full_name);
         const card = createTeacherCard(user);
         teachersList.appendChild(card);
     });
-    console.log("Загалом відмалювалося:", teachersList.children.length, "карток");
+    console.log("Відмалювалося:", teachersList.children.length, "карток");
 }
 
 
-function renderFavourites() {
+function renderFavourites(usersToShow = validUsers) {
     favouritesRow.innerHTML = "";
-    const favUsers = validUsers.filter(u => favourites.includes(u.id));
-    console.log("Рендеримо favourites, знайдено користувачів:", favUsers);
-
+    const favUsers = usersToShow.filter(u => favourites.includes(u.id));
     favUsers.forEach(user => {
         const card = createTeacherCard(user);
         favouritesRow.appendChild(card);
     });
-
-    console.log("У favourites-row відмалювалось:", favouritesRow.children.length, "карток");
 }
 
 
 function toggleFavourite(userId) {
-    console.log("favourites зараз:", favourites);
-    if (favourites.includes(userId)) {
+    if (isFavourite(userId)) {
         favourites = favourites.filter(id => id !== userId);
-        console.log("Прибираю з favourites:", userId);
+        console.log(`❌ Видалено з улюблених: ${userId}`);
+        showToast("Викладача видалено з улюблених", "error");
     } else {
         favourites.push(userId);
-        console.log("Додаю у favourites:", userId);
+        console.log(`⭐ Додано в улюблені: ${userId}`);
+        showToast("Викладача додано в улюблені", "success");
     }
 
-    console.log("Поточний список favourites:", favourites);
-    renderTeachers(validUsers);
-    renderFavourites();
+    updateAllStars();
+    renderFavourites(getFilteredAndSearchedUsers());
+}
+
+function getFilteredAndSearchedUsers() {
+    const filteredUsers = applyFilters();
+    const query = searchInput.value.trim().toLowerCase();
+    if (!query) return filteredUsers;
+
+    return filteredUsers.filter(user =>
+        user.full_name.toLowerCase().includes(query) ||
+        user.note.toLowerCase().includes(query) ||
+        user.age.toString() === query
+    );
 }
 
 
+function updateAllStars() {
+    document.querySelectorAll(".teacher-card").forEach(card => {
+        const userId = card.dataset.id;
+        const star = card.querySelector(".favorite-star-icon");
+        if (isFavourite(userId)) {
+            star.src = "images/Star 1.svg";
+        } else {
+            star.src = "images/Star 2.svg";
+        }
+    });
+
+    const modalStar = document.getElementById("modalStar");
+    if (modalStar && modalStar.dataset.id) {
+        if (isFavourite(modalStar.dataset.id)) {
+            modalStar.src = "images/Star 1.svg";
+        } else {
+            modalStar.src = "images/Star 2.svg";
+        }
+    }
+}
 function showTeacherInfo(user) {
     document.getElementById("teacherPhoto").src = user.picture_large || "";
     document.getElementById("teacherName").textContent = user.full_name;
@@ -114,12 +159,359 @@ function showTeacherInfo(user) {
     document.getElementById("teacherPhone").textContent = user.phone;
     document.getElementById("teacherNotes").textContent = user.note || "";
 
+    const modalStar = document.getElementById("modalStar");
+    modalStar.dataset.id = user.id; // збережемо айді
+    modalStar.src = isFavourite(user.id) ? "images/Star 1.svg" : "images/Star 2.svg";
+
+    modalStar.onclick = (e) => {
+        e.stopPropagation();
+        toggleFavourite(user.id);
+    };
+
     viewModal.style.display = "block";
 }
 
-viewClose.addEventListener("click", () => {
-    viewModal.style.display = "none";
+viewClose.addEventListener("click", () => viewModal.style.display = "none");
+
+function applyFilters() {
+    const formData = new FormData(filtersForm);
+    const filters = {};
+
+    const ageVal = formData.get("age");
+    if (ageVal) {
+        const [min, max] = ageVal.split("-").map(Number);
+        filters.age = { min, max };
+    }
+
+    const gender = formData.get("sex");
+    if (gender) {
+        filters.gender = gender.charAt(0).toUpperCase() + gender.slice(1);
+    }
+
+    if (formData.get("only-favourites")) {
+        filters.id = favourites; // ми будемо перевіряти по id
+    }
+
+    if (formData.get("only-photo")) {
+        filters.picture_large = true;
+    }
+
+
+    return validUsers.filter(user => {
+        if (filters.age) {
+            if (user.age < filters.age.min || user.age > filters.age.max) return false;
+        }
+        if (filters.gender && user.gender !== filters.gender) return false;
+        if (filters.id && !filters.id.includes(user.id)) return false;
+        if (filters.picture_large && !user.picture_large) return false;
+
+        return true;
+    });
+}
+
+
+
+const statsTable = document.querySelector(".statistics table");
+const tbody = statsTable.querySelector("tbody");
+let sortOrder = {};
+const keyMap = ["full_name", "course", "age", "gender", "country"];
+const paginationContainer = document.querySelector(".pages");
+const ROWS_PER_PAGE = 10;
+let currentPage = 1;
+
+statsTable.querySelectorAll("th").forEach((th, index) => {
+    const key = keyMap[index];
+    const thContent = th.querySelector(".th-content");
+
+    th.addEventListener("click", () => {
+        sortOrder[key] = sortOrder[key] === "asc" ? "desc" : "asc";
+
+        statsTable.querySelectorAll(".th-content").forEach(tc => {
+            tc.classList.remove("sorted-asc", "sorted-desc");
+        });
+
+        thContent.classList.add(sortOrder[key] === "asc" ? "sorted-asc" : "sorted-desc");
+
+        console.log(`🖱 Клік по "${key}", порядок: ${sortOrder[key]}`);
+
+        const currentUsers = getFilteredAndSearchedUsers();
+        const sortedUsers = sortUsers(currentUsers, key, sortOrder[key]);
+        currentPage = 1; // після сортування повертаємось на першу сторінку
+        renderStatisticsWithPagination(sortedUsers);
+    });
+});
+function renderStatistics(users) {
+    console.log(`📝 Відмалюємо таблицю: ${users.length} рядків`);
+    tbody.innerHTML = "";
+
+    users.forEach(user => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${user.full_name}</td>
+            <td>${user.course}</td>
+            <td>${user.age}</td>
+            <td>${user.gender}</td>
+            <td>${user.country}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderStatisticsWithPagination(users) {
+    const totalPages = Math.ceil(users.length / ROWS_PER_PAGE);
+    currentPage = Math.min(currentPage, totalPages);
+
+    const start = (currentPage - 1) * ROWS_PER_PAGE;
+    const end = start + ROWS_PER_PAGE;
+    const usersToShow = users.slice(start, end);
+
+    console.log(`📄 Сторінка ${currentPage} / ${totalPages}`);
+    console.log(usersToShow.map(u => u.full_name));
+
+    renderStatistics(usersToShow);
+    renderPaginationButtons(totalPages, users);
+}
+function renderPaginationButtons(totalPages, users) {
+    paginationContainer.innerHTML = "";
+
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+
+        // підсвічуємо активну
+        if (i === currentPage) btn.classList.add("active");
+
+        btn.addEventListener("click", () => {
+            currentPage = i;
+            const sortedUsers = sortUsers(users, getCurrentSortKey(), getCurrentSortOrder());
+            renderStatisticsWithPagination(sortedUsers);
+        });
+
+        paginationContainer.appendChild(btn);
+    }
+}
+
+function getCurrentSortKey() {
+    for (const key in sortOrder) return key;
+    return "full_name";
+}
+
+function getCurrentSortOrder() {
+    for (const key in sortOrder) return sortOrder[key] || "asc";
+    return "asc";
+}
+
+const filteredAndSorted = sortUsers(applyFilters(), getCurrentSortKey(), getCurrentSortOrder());
+renderStatisticsWithPagination(filteredAndSorted);
+
+
+const searchInput = document.querySelector(".search-container input");
+const searchButton = document.getElementById("searchButton");
+
+function searchUsers(users, query) {
+    if (!query) return users;
+    query = query.toLowerCase().trim();
+
+    return users.filter(user => {
+        const nameMatch = user.full_name.toLowerCase().includes(query);
+        const noteMatch = user.note.toLowerCase().includes(query);
+        const ageMatch = user.age.toString() === query;
+
+        return nameMatch || noteMatch || ageMatch;
+    });
+}
+function updateViews() {
+    const query = searchInput.value;
+    console.log("🔍 Пошук:", query);
+
+    const filteredUsers = applyFilters();
+    const searchedUsers = searchUsers(filteredUsers, query);
+
+    renderTeachers(searchedUsers);
+
+    const sortedUsers = sortUsers(searchedUsers, getCurrentSortKey(), getCurrentSortOrder());
+    currentPage = 1; // після пошуку повертаємось на першу сторінку
+    renderStatisticsWithPagination(sortedUsers);
+
+    favouritesRow.innerHTML = "";
+    const favUsers = searchedUsers.filter(u => favourites.includes(u.id));
+    favUsers.forEach(user => {
+        const card = createTeacherCard(user);
+        favouritesRow.appendChild(card);
+    });
+}
+
+searchButton.addEventListener("click", updateViews);
+
+searchInput.addEventListener("keyup", (e) => {
+    if (e.key === "Enter") updateViews();
 });
 
-renderTeachers(validUsers);
-renderFavourites();
+function isFavourite(userId) {
+    return favourites.includes(userId);
+}
+
+function showToast(message, type = "info") {
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.classList.add("toast");
+
+    if (type === "success") toast.style.background = "#52cb6d";
+    if (type === "error") toast.style.background = "#c74854";
+
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => toast.classList.add("show"), 100);
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+    }, 1500);
+}
+
+const addModal = document.getElementById("addModal");
+const addBtns = document.querySelectorAll(".add-teacher");
+const addClose = document.querySelector(".add-close");
+const addForm = document.getElementById("addTeacherForm");
+
+for (const btn of addBtns) {
+    btn.addEventListener("click", () => {
+        addModal.style.display = "block";
+        populateSelects();
+
+    });
+}
+addClose.addEventListener("click", () => {
+    addModal.style.display = "none";
+});
+
+addModal.addEventListener("click", (e) => {
+    if (e.target === addModal) addModal.style.display = "none";
+});
+function populateSelects() {
+    const specialitySelect = document.getElementById("specialitySelect");
+    const countrySelect = document.getElementById("countrySelect");
+
+    const courses = [...new Set(validUsers.map(u => u.course))].sort();
+    const countries = [...new Set(validUsers.map(u => u.country))].sort();
+
+    specialitySelect.innerHTML = `<option value="">Speciality</option>`;
+    courses.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        specialitySelect.appendChild(opt);
+    });
+
+    countrySelect.innerHTML = `<option value="">Country</option>`;
+    countries.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        countrySelect.appendChild(opt);
+    });
+}
+addForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = addForm.querySelector("input[placeholder='Enter name']").value.trim();
+    const speciality = document.getElementById("specialitySelect").value;
+    const country = document.getElementById("countrySelect").value;
+    const city = addForm.querySelector("input[placeholder='City']").value.trim();
+    const email = addForm.querySelector("input[type='email']").value.trim();
+    const phone = addForm.querySelector("input[type='tel']").value.trim();
+    const dob = addForm.querySelector("input[type='date']").value;
+    const sex = addForm.querySelector("input[name='sex']:checked")?.value;
+    const color = addForm.querySelector("input[type='color']").value;
+    const notes = addForm.querySelector("textarea").value.trim();
+
+    if (!name || !speciality || !country || !city || !email || !phone || !dob || !sex) {
+        showToast("Будь ласка, заповніть усі обов'язкові поля", "error");
+        return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+        showToast("Некоректний email", "error");
+        return;
+    }
+    if (!/^\+?\d{7,15}$/.test(phone)) {
+        showToast("Некоректний номер телефону", "error");
+        return;
+    }
+
+    const age = Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+
+    const newTeacher = {
+        id: generateID(),
+        full_name: name,
+        course: speciality,
+        country,
+        city,
+        email,
+        phone,
+        dob,
+        age,
+        gender: sex,
+        note: notes,
+        picture_large: "",
+        favorite: false,
+        bgColor: color
+    };
+
+    validUsers.push(newTeacher);
+    showToast("✅ Викладача додано!", "success");
+
+    renderTeachers(applyFilters());
+    renderFavourites();
+    renderStatisticsWithPagination(sortUsers(applyFilters(), getCurrentSortKey(), getCurrentSortOrder()));
+
+    const newCard = document.querySelector(`.teacher-card[data-id="${newTeacher.id}"]`);
+    if (newCard) {
+        newCard.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    addModal.style.display = "none";
+    addForm.reset();
+
+});
+
+const sections = {
+    "Teachers": document.querySelector(".teachers-list"),
+    "Statistics": document.querySelector(".statistics"),
+    "Favourites": document.querySelector(".favourites"),
+};
+
+function scrollToSection(name) {
+    const section = sections[name];
+    if (!section) return;
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function handleTabClick(e) {
+    const name = e.target.textContent.trim();
+    scrollToSection(name);
+    updateActiveTabs(name);
+}
+
+function updateActiveTabs(activeName) {
+    document.querySelectorAll(".tabs .tab").forEach(tab => {
+        if (tab.textContent.trim() === activeName) {
+            tab.classList.add("active");
+        } else {
+            tab.classList.remove("active");
+        }
+    });
+}
+
+document.querySelectorAll(".tabs .tab").forEach(tab => {
+    tab.addEventListener("click", handleTabClick);
+});
+
+
+window.addEventListener("scroll", () => {
+    const scrollPos = window.scrollY;
+    for (const [name, section] of Object.entries(sections)) {
+        if (scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
+            updateActiveTabs(name);
+        }
+    }
+});

@@ -23,17 +23,31 @@
       text-align: center;
       transition: all 0.3s ease;
 
-      .th-content {
+      th-content {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 5px;
+        cursor: pointer;
+      }
 
-        &::after {
-          content: "↓";
-          font-size: $font-size-large;
-          color: transparent;
-        }
+      .th-content::after {
+        content: "↓";
+        font-size: 16px;
+        color: transparent;
+        margin-left: 5px;
+      }
+
+      .th-content.sorted-asc::after {
+        content: "↑";
+        color: black;
+        margin-left: 5px;
+      }
+
+      .th-content.sorted-desc::after {
+        content: "↓";
+        color: black;
+        margin-left: 5px;
       }
 
       &:hover {
@@ -85,4 +99,10 @@
       }
     }
   }
+}
+
+.empty-card {
+  width: 150px;
+  height: 200px;
+  margin: 10px;
 }

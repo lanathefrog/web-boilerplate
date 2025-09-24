@@ -13,6 +13,7 @@
 
     <link rel="stylesheet" href="./scss/style.css">
     <script src="js/script.js" type="module"></script>
+    <script src="js/lab02.js" type="module"></script>
 
 
 </head>
@@ -24,7 +25,7 @@
         <h1>Teachinder</h1>
         <div class="search-container">
             <input type="text" placeholder="Search...">
-            <button>Search</button>
+            <button id="searchButton">Search</button>
         </div>
     </header>
     <section class="tabs">
@@ -46,25 +47,23 @@
         <form class="filters">
             <label>
                 Age:
-                <select name="age">
+                <select name="age" id="ageFilter">
                     <option value="">Any</option>
-                    <option value="18-31">18–31</option>
-                    <option value="31-50">31-50</option>
+                    <!-- опції JS додасть автоматично -->
                 </select>
             </label>
 
             <label>
-                Region:
-                <select name="region">
+                Country:
+                <select name="country" id="countryFilter">
                     <option value="">Any</option>
-                    <option value="europe">Europe</option>
-                    <option value="asia">Asia</option>
+                    <!-- опції JS додасть автоматично -->
                 </select>
             </label>
 
             <label>
                 Sex:
-                <select name="sex">
+                <select name="sex" id="genderFilter">
                     <option value="">Any</option>
                     <option value="female">Female</option>
                     <option value="male">Male</option>
@@ -72,16 +71,16 @@
             </label>
 
             <label>
-                <input type="checkbox" name="only-photo">
+                <input type="checkbox" name="only-photo" id="photoFilter">
                 Only photo
             </label>
 
             <label>
-                <input type="checkbox" name="only-favourites">
+                <input type="checkbox" name="only-favourites" id="favFilter">
                 Only favourites
             </label>
-
         </form>
+
 
         <section class="teachers-list">
 
@@ -105,87 +104,13 @@
                 </thead>
 
                 <tbody>
-                <tr>
-                    <td>John Pork</td>
-                    <td>Chemistry</td>
-                    <td>35</td>
-                    <td>Male</td>
-                    <td>Ukraine</td>
-                </tr>
-                <tr>
-                    <td>Mary Smith</td>
-                    <td>Mathematics</td>
-                    <td>42</td>
-                    <td>Female</td>
-                    <td>USA</td>
-                </tr>
-                <tr>
-                    <td>Alex Johnson</td>
-                    <td>Physics</td>
-                    <td>39</td>
-                    <td>Male</td>
-                    <td>UK</td>
-                </tr>
-                <tr>
-                    <td>Sophia Brown</td>
-                    <td>Biology</td>
-                    <td>31</td>
-                    <td>Female</td>
-                    <td>Canada</td>
-                </tr>
-                <tr>
-                    <td>Michael Williams</td>
-                    <td>History</td>
-                    <td>45</td>
-                    <td>Male</td>
-                    <td>Germany</td>
-                </tr>
-                <tr>
-                    <td>Emma Davis</td>
-                    <td>Geography</td>
-                    <td>29</td>
-                    <td>Female</td>
-                    <td>Australia</td>
-                </tr>
-                <tr>
-                    <td>David Miller</td>
-                    <td>English</td>
-                    <td>38</td>
-                    <td>Male</td>
-                    <td>France</td>
-                </tr>
-                <tr>
-                    <td>Olivia Wilson</td>
-                    <td>Art</td>
-                    <td>33</td>
-                    <td>Female</td>
-                    <td>Italy</td>
-                </tr>
-                <tr>
-                    <td>Lucas Anderson</td>
-                    <td>Music</td>
-                    <td>41</td>
-                    <td>Male</td>
-                    <td>Sweden</td>
-                </tr>
-                <tr>
-                    <td>Isabella Thomas</td>
-                    <td>Philosophy</td>
-                    <td>36</td>
-                    <td>Female</td>
-                    <td>Netherlands</td>
-                </tr>
+
                 </tbody>
             </table>
             </div>
 
             <div class ="pages">
-                <button>1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>4</button>
-                ...
-                <button class="last">Last</button>
+
             </div>
         </section>
         <hr>
@@ -225,34 +150,15 @@
 
                 <div class="input-group">
                     <span class="input-label">Speciality</span>
-                    <select class="input-field" required>
-                        <option value="">Speciality</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Chemistry">Chemistry</option>
-                        <option value="English">English</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Biology">Biology</option>
-                        <option value="C++">C++</option>
-                        <option value="History">History</option>
-                        <option value="Art">Art</option>
-                    </select>
+                    <select id="specialitySelect" class="input-field" required>...</select>
+
+
                 </div>
 
                 <div class="kill-me">
                     <div class="input-group">
                         <span class="input-label">Country</span>
-                        <select class="input-field" required>
-                            <option value="">Country</option>
-                            <option value="Ukraine">Ukraine</option>
-                            <option value="USA">USA</option>
-                            <option value="UK">UK</option>
-                            <option value="Israel">Israel</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Germany">Germany</option>
-                            <option value="Australia">Australia</option>
-                            <option value="France">France</option>
-                            <option value="Italy">Italy</option>
-                        </select>
+                        <select id="countrySelect" class="input-field" required>...</select>
                     </div>
 
                     <div class="input-group">
@@ -325,11 +231,11 @@
                     <p id="teacherPhone"></p>
                 </div>
 
-                <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                <img id="modalStar" class="favorite-star-icon" src="images/Star 2.svg" alt="Favorite Star">
             </div>
 
             <p id="teacherNotes"></p>
-            <p id="toggleMap">Show on map</p>
+            <p id="toggleMap">toggle map</p>
         </div>
     </div>
 
@@ -360,6 +266,7 @@
         </section>
     </footer>
 </main>
+<div id="toast-container"></div>
 
 
 </body>

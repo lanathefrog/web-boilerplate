@@ -293,16 +293,28 @@ body main .statistics table th {
   text-align: center;
   transition: all 0.3s ease;
 }
-body main .statistics table th .th-content {
+body main .statistics table th th-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
+  cursor: pointer;
 }
 body main .statistics table th .th-content::after {
   content: "↓";
-  font-size: 20px;
+  font-size: 16px;
   color: transparent;
+  margin-left: 5px;
+}
+body main .statistics table th .th-content.sorted-asc::after {
+  content: "↑";
+  color: black;
+  margin-left: 5px;
+}
+body main .statistics table th .th-content.sorted-desc::after {
+  content: "↓";
+  color: black;
+  margin-left: 5px;
 }
 body main .statistics table th:hover {
   background-color: #f2f2f2;
@@ -342,6 +354,11 @@ body main .statistics .pages button.last {
 }
 body main .statistics .pages button:hover {
   color: rgb(48.1818181818, 110, 121.8181818182);
+}
+body main .empty-card {
+  width: 150px;
+  height: 200px;
+  margin: 10px;
 }
 body main .favourites {
   position: relative;
@@ -611,6 +628,39 @@ body main .view-teacher-modal .favorite-star-icon {
 body main footer {
   font-size: 14px;
   color: #808080;
+}
+
+#toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.toast {
+  min-width: 300px;
+  max-width: 600px;
+  background: #333;
+  color: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(-30px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /*# sourceMappingURL=style.css.map */
