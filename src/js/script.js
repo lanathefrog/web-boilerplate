@@ -22,13 +22,10 @@ viewModal.addEventListener("click", (e) => {
 
 renderTeachers(applyFilters());
 renderFavourites();
-
-
 function createTeacherCard(user) {
     const card = document.createElement("div");
     card.classList.add("teacher-card");
-    card.dataset.id = user.id; // <-- додаємо айді
-
+    card.dataset.id = user.id;
 
     const avatarWrapper = document.createElement("div");
     avatarWrapper.classList.add("avatar-wrapper");
@@ -50,19 +47,10 @@ function createTeacherCard(user) {
     }
 
     const star = document.createElement("img");
-    star.src = "images/Star 1.svg";
+    star.src = favourites.includes(user.id) ? "images/Star 1.svg" : "images/Star 2.svg";
     star.alt = "Favorite Star";
     star.classList.add("favorite-star-icon");
-    if (favourites.includes(user.id)) {
-        star.classList.add("active");
-        star.src = "images/Star 1.svg";
-    }else {
-        star.src = "images/Star 2.svg";
-    }
-    star.addEventListener("click", e => {
-        e.stopPropagation();
-        toggleFavourite(user.id);
-    });
+
     avatarWrapper.appendChild(star);
 
     const info = document.createElement("div");
@@ -76,13 +64,47 @@ function createTeacherCard(user) {
     card.appendChild(avatarWrapper);
     card.appendChild(info);
 
-    card.addEventListener("click", () => showTeacherInfo(user));
-
     return card;
 }
 
+teachersList.addEventListener("click", e => {
+    const card = e.target.closest(".teacher-card");
+    if (!card) return;
+
+    const userId = card.dataset.id;
+    const user = validUsers.find(u => u.id === userId);
+    if (!user) return;
+
+    if (e.target.classList.contains("favorite-star-icon")) {
+        e.stopPropagation();
+        toggleFavourite(userId);
+        return;
+    }
+
+    showTeacherInfo(user);
+});
+
+favouritesRow.addEventListener("click", e => {
+    const card = e.target.closest(".teacher-card");
+    if (!card) return;
+
+    const userId = card.dataset.id;
+    const user = validUsers.find(u => u.id === userId);
+    if (!user) return;
+
+    if (e.target.classList.contains("favorite-star-icon")) {
+        e.stopPropagation();
+        toggleFavourite(userId);
+        return;
+    }
+
+    showTeacherInfo(user);
+});
+
+
+
 export function renderTeachers(users) {
-    teachersList.innerHTML = "";  // очищаємо
+    teachersList.innerHTML = "";
     users.forEach(user => {
         const card = createTeacherCard(user);
         teachersList.appendChild(card);
