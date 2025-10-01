@@ -230,7 +230,7 @@ function filterUsers(users) {
     const onlyPhoto = document.getElementById("photoFilter").checked;
     const onlyFav = document.getElementById("favFilter").checked;
 
-    console.log("🔎 Active filters:", {
+    console.log("Active filters:", {
         ageVal,
         countryVal,
         genderVal,
@@ -246,36 +246,35 @@ function filterUsers(users) {
             const minNum = Number(min);
             const maxNum = maxStr === "Infinity" ? Infinity : Number(maxStr);
             if (user.age < minNum || user.age > maxNum) {
-                console.log(`⏩ Skip (age mismatch): ${user.age}`);
+                console.log(`Skip (age mismatch): ${user.age}`);
                 return false;
             }
         }
 
         if (countryVal && user.country !== countryVal) {
-            console.log(`⏩ Skip (country mismatch): ${user.country}`);
+            console.log(`Skip (country mismatch): ${user.country}`);
             return false;
         }
 
         if (genderVal && user.gender.toLowerCase() !== genderVal) {
-            console.log(`⏩ Skip (gender mismatch): ${user.gender}`);
+            console.log(`Skip (gender mismatch): ${user.gender}`);
             return false;
         }
 
         if (onlyPhoto && !user.picture_large) {
-            console.log("⏩ Skip (no photo)");
+            console.log("Skip (no photo)");
             return false;
         }
 
         if (onlyFav && !user.favorite) {
-            console.log("⏩ Skip (not favourite)");
+            console.log("Skip (not favourite)");
             return false;
         }
 
-        console.log("✅ Pass:", user.full_name);
+        console.log("Pass:", user.full_name);
         return true;
     });
 
-    console.log("🎯 Filtered users:", result.map(u => u.full_name));
     return result;
 }
 import { renderTeachers } from './script.js';
