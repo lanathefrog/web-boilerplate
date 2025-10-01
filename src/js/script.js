@@ -1,13 +1,42 @@
-import { validUsers, sortUsers, generateID  } from "./lab02.js";
-console.log(validUsers.length);
-
+import {sortUsers, generateID, fetchMoreUsers} from "./functions.js";
 const teachersList = document.querySelector(".teachers-list");
 const favouritesRow = document.querySelector(".favourites-row");
 const viewModal = document.getElementById("viewModal");
 const viewClose = document.querySelector(".view-close");
 const filtersForm = document.querySelector(".filters");
 
-let favourites = validUsers.filter(u => u.favorite).map(u => u.id);
+
+let validUsers = [];
+let favourites = [];
+export function initApp(users) {
+    validUsers = users;
+    favourites = validUsers.filter(u => u.favorite).map(u => u.id);
+    initFilters();
+    renderTeachers(validUsers);
+    renderFavourites();
+    renderStatisticsWithPagination(validUsers);
+}
+
+const loadMoreBtn = document.getElementById("load-more-btn");
+
+loadMoreBtn.addEventListener("click", async () => {
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = "Завантаження...";
+
+    const newUsers = await fetchMoreUsers();
+    if (newUsers.length > 0) {
+        renderTeachers(applyFilters());
+        const sortedUsers = sortUsers(getFilteredAndSearchedUsers(), getCurrentSortKey(), getCurrentSortOrder());
+        renderStatisticsWithPagination(sortedUsers);
+        renderFavourites();
+    } else {
+        showToast("Більше користувачів немає", "info");
+    }
+
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = "Далі";
+});
+
 
 viewClose.addEventListener("click", () => {
     viewModal.style.display = "none";
@@ -37,6 +66,8 @@ function createTeacherCard(user) {
         avatarWrapper.appendChild(img);
     } else {
         avatarWrapper.classList.add("no-photo");
+        console.log("No photo for user:", user.id, user.full_name);
+        avatarWrapper.style.backgroundColor = user.bg_color;
         const initials = document.createElement("span");
         initials.classList.add("initials");
         initials.textContent = user.full_name
@@ -112,6 +143,44 @@ export function renderTeachers(users) {
     console.log("Відмалювалося:", teachersList.children.length, "карток");
 }
 
+function filterUsers(users) {
+    const ageVal = document.getElementById("ageFilter").value;
+    const countryVal = document.getElementById("countryFilter").value;
+    const genderVal = document.getElementById("genderFilter").value;
+    const onlyPhoto = document.getElementById("photoFilter").checked;
+    const onlyFav = document.getElementById("favFilter").checked;
+
+    return users.filter(user => {
+        if (ageVal) {
+            const [min, maxStr] = ageVal.split("-");
+            const minNum = Number(min);
+            const maxNum = maxStr === "Infinity" ? Infinity : Number(maxStr);
+            if (user.age < minNum || user.age > maxNum) return false;
+        }
+
+        if (countryVal && user.country !== countryVal) {
+            return false;
+        }
+
+        if (genderVal && genderVal !== "any") {
+            if (user.gender.toLowerCase() !== genderVal.toLowerCase()) {
+                return false;
+            }
+        }
+
+        if (onlyPhoto && !user.picture_large) {
+            return false;
+        }
+
+        if (onlyFav && !favourites.includes(user.id)) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+
 
 function renderFavourites(usersToShow = validUsers) {
     favouritesRow.innerHTML = "";
@@ -136,6 +205,40 @@ function toggleFavourite(userId) {
 
     updateAllStars();
     renderFavourites(getFilteredAndSearchedUsers());
+}
+function initFilters() {
+    const ageRanges = [
+        { label: "18–24", min: 18, max: 24 },
+        { label: "25–30", min: 25, max: 30 },
+        { label: "31–35", min: 31, max: 35 },
+        { label: "36–40", min: 36, max: 40 },
+        { label: "41–50", min: 41, max: 50 },
+        { label: "51+", min: 51, max: Infinity }
+    ];
+
+    const ageSelect = document.getElementById("ageFilter");
+    ageRanges.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = `${r.min}-${r.max}`;
+        opt.textContent = r.label;
+        ageSelect.appendChild(opt);
+    });
+
+    const countries = [...new Set(validUsers.map(u => u.country).filter(Boolean))].sort();
+    const countrySelect = document.getElementById("countryFilter");
+    countries.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        countrySelect.appendChild(opt);
+    });
+
+    document.querySelector(".filters").addEventListener("change", () => {
+        const filtered = filterUsers(validUsers);
+        renderTeachers(filtered);
+        renderStatisticsWithPagination(filtered);
+        renderFavourites(filtered);
+    });
 }
 
 function getFilteredAndSearchedUsers() {
@@ -224,20 +327,17 @@ function applyFilters() {
             if (user.age < filters.age.min || user.age > filters.age.max) return false;
         }
         if (filters.gender && user.gender !== filters.gender) return false;
-        if (filters.id && !filters.id.includes(user.id)) return false;
+        if (filters.id && filters.id.length > 0 && !filters.id.includes(user.id)) return false;
         if (filters.picture_large && !user.picture_large) return false;
 
         return true;
     });
 }
 
-
-
 const statsTable = document.querySelector(".statistics table");
 const tbody = statsTable.querySelector("tbody");
 let sortOrder = {};
 const keyMap = ["full_name", "course", "age", "gender", "country"];
-const paginationContainer = document.querySelector(".pages");
 const ROWS_PER_PAGE = 10;
 let currentPage = 1;
 
@@ -277,19 +377,21 @@ function renderStatistics(users) {
 
 function renderStatisticsWithPagination(users) {
     const totalPages = Math.ceil(users.length / ROWS_PER_PAGE);
-    currentPage = Math.min(currentPage, totalPages);
+    currentPage = Math.min(currentPage, totalPages) || 1;
 
     const start = (currentPage - 1) * ROWS_PER_PAGE;
     const end = start + ROWS_PER_PAGE;
     const usersToShow = users.slice(start, end);
 
-    console.log(usersToShow.map(u => u.full_name));
-
     renderStatistics(usersToShow);
     renderPaginationButtons(totalPages, users);
 }
 function renderPaginationButtons(totalPages, users) {
-    paginationContainer.innerHTML = "";
+    const container = document.querySelector(".pages");
+    container.innerHTML = "";
+
+    const pageNumbers = document.createElement("div");
+    pageNumbers.classList.add("page-numbers");
 
     for (let i = 1; i <= totalPages; i++) {
         const btn = document.createElement("button");
@@ -303,9 +405,29 @@ function renderPaginationButtons(totalPages, users) {
             renderStatisticsWithPagination(sortedUsers);
         });
 
-        paginationContainer.appendChild(btn);
+        pageNumbers.appendChild(btn);
     }
+
+    container.appendChild(pageNumbers);
+
+    const arrowBtn = document.createElement("div");
+    arrowBtn.classList.add("arrow-btn");
+    const arrowImg = document.createElement("img");
+    arrowImg.src = "images/arrow-table.svg";
+    arrowImg.alt = "Next page";
+    arrowBtn.appendChild(arrowImg);
+
+    arrowBtn.addEventListener("click", () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            const sortedUsers = sortUsers(users, getCurrentSortKey(), getCurrentSortOrder());
+            renderStatisticsWithPagination(sortedUsers);
+        }
+    });
+
+    container.appendChild(arrowBtn);
 }
+
 
 function getCurrentSortKey() {
     for (const key in sortOrder) return key;
@@ -316,6 +438,7 @@ function getCurrentSortOrder() {
     for (const key in sortOrder) return sortOrder[key] || "asc";
     return "asc";
 }
+
 
 const filteredAndSorted = sortUsers(applyFilters(), getCurrentSortKey(), getCurrentSortOrder());
 renderStatisticsWithPagination(filteredAndSorted);
@@ -425,7 +548,7 @@ function populateSelects() {
         countrySelect.appendChild(opt);
     });
 }
-addForm.addEventListener("submit", (e) => {
+addForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const name = addForm.querySelector("input[placeholder='Enter name']").value.trim();
@@ -468,22 +591,36 @@ addForm.addEventListener("submit", (e) => {
         note: notes,
         picture_large: "",
         favorite: false,
-        bgColor: color
+        bg_color : color
     };
 
-    validUsers.push(newTeacher);
-    showToast("Викладача додано!", "success");
 
-    renderTeachers(applyFilters());
-    renderFavourites();
-    renderStatisticsWithPagination(sortUsers(applyFilters(), getCurrentSortKey(), getCurrentSortOrder()));
+    try {
+        const response = await fetch("http://localhost:3002/teachers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newTeacher)
+        });
 
-    const newCard = document.querySelector(`.teacher-card[data-id="${newTeacher.id}"]`);
-    if (newCard) {
-        newCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (!response.ok) throw new Error("Помилка при додаванні");
+        const savedTeacher = await response.json();
+        validUsers.push(savedTeacher);
+        showToast("Викладача додано!", "success");
+        renderTeachers(applyFilters());
+        renderFavourites();
+        renderStatisticsWithPagination(sortUsers(applyFilters(), getCurrentSortKey(), getCurrentSortOrder()));
+
+        const newCard = document.querySelector(`.teacher-card[data-id="${savedTeacher.id}"]`);
+        if (newCard) {
+            newCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        addModal.style.display = "none";
+        addForm.reset();
+
+    } catch (err) {
+        console.error("Не вдалося додати викладача", err);
     }
-    addModal.style.display = "none";
-    addForm.reset();
 
 });
 

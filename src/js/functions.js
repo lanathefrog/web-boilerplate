@@ -1,8 +1,6 @@
 import { randomUserMock } from "./mock.js";
 import { additionalUsers } from "./mock.js";
 
-// ------- TASK 1 --------
-
 const courses = [
     "Mathematics","Physics","English","Computer Science","Dancing","Chess",
     "Biology","Chemistry","Law","Art","Medicine","Statistics"
@@ -37,6 +35,19 @@ function pickRandomBoolean() {
 
 function normName(fullName) {
     return fullName ? String(fullName).trim().toLowerCase() : null;
+}
+
+export async function fetchRandomUsers(count = 50) {
+    const url = `https://randomuser.me/api/?results=${count}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+        return data.results.map(u => formatUser(u));
+    } catch (err) {
+        console.error("Error fetching users:", err);
+        return [];
+    }
 }
 
 function formatUser(raw) {
@@ -116,14 +127,6 @@ function mergeAndFormatUsers(arrA, arrB) {
 
     return result;
 }
-console.log("--------- TASK 1 ---------");
-const allUsers = mergeAndFormatUsers(randomUserMock, additionalUsers);
-console.log("total users:", allUsers.length);
-console.log("first user:", allUsers[0]);
-console.log("last user:", allUsers[allUsers.length - 1]);
-
-
-// --------- TASK 2 ---------
 
 function normalizeCapitalizedString(value) {
     if (value === undefined) return value;
@@ -189,102 +192,47 @@ function validateUser(user) {
 function validateUsers(users) {
     return users.filter(validateUser);
 }
-console.log("--------- TASK 2 ---------");
-const validUsers = validateUsers(allUsers);
-console.log("valid users:", validUsers.length);
-console.log("first valid:", validUsers[0]);
-console.log("last valid:", validUsers[validUsers.length - 1]);
 
-// --------- TASK 3 (фільтрація з UI) ---------
 
-const ageRanges = [
-    { label: "18–24", min: 18, max: 24 },
-    { label: "25–30", min: 25, max: 30 },
-    { label: "31–35", min: 31, max: 35 },
-    { label: "36–40", min: 36, max: 40 },
-    { label: "41–50", min: 41, max: 50 },
-    { label: "51+", min: 51, max: Infinity }
-];
+let validUsers = [];
 
-const ageSelect = document.getElementById("ageFilter");
-ageRanges.forEach(r => {
-    const opt = document.createElement("option");
-    opt.value = `${r.min}-${r.max}`;
-    opt.textContent = r.label;
-    ageSelect.appendChild(opt);
-});
+(async () => {
+    try {
+        const apiUsers = await fetchRandomUsers(50);
+        const response = await fetch("http://localhost:3002/teachers");
+        const serverUsers = await response.json();
 
-const countries = [...new Set(validUsers.map(u => u.country).filter(Boolean))].sort();
-const countrySelect = document.getElementById("countryFilter");
-countries.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
-    countrySelect.appendChild(opt);
-});
+        console.log("Fetched users from API:", apiUsers.length);
+        console.log("Fetched users from JSON Server:", serverUsers.length);
 
-function filterUsers(users) {
-    const ageVal = ageSelect.value;
-    const countryVal = countrySelect.value;
-    const genderVal = document.getElementById("genderFilter").value;
-    const onlyPhoto = document.getElementById("photoFilter").checked;
-    const onlyFav = document.getElementById("favFilter").checked;
+        const formattedUsers = mergeAndFormatUsers(apiUsers, serverUsers);
+        console.log("Formatted users:", formattedUsers.length);
 
-    console.log("Active filters:", {
-        ageVal,
-        countryVal,
-        genderVal,
-        onlyPhoto,
-        onlyFav
-    });
+        validUsers = validateUsers(formattedUsers);
+        console.log("Users ready:", validUsers.length);
 
-    const result = users.filter(user => {
-        console.log("Checking user:", user.full_name, user);
+        import("./script.js").then(module => {
+            module.initApp(validUsers);
+        });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+    }
+})();
+const FETCH_STEP = 10;
 
-        if (ageVal) {
-            const [min, maxStr] = ageVal.split("-");
-            const minNum = Number(min);
-            const maxNum = maxStr === "Infinity" ? Infinity : Number(maxStr);
-            if (user.age < minNum || user.age > maxNum) {
-                console.log(`Skip (age mismatch): ${user.age}`);
-                return false;
-            }
-        }
+export async function fetchMoreUsers() {
+    try {
+        const apiUsers = await fetchRandomUsers(FETCH_STEP);
+        const formattedUsers = apiUsers.map(formatUser);
+        const validNewUsers = validateUsers(formattedUsers);
+        validUsers.push(...validNewUsers)
 
-        if (countryVal && user.country !== countryVal) {
-            console.log(`Skip (country mismatch): ${user.country}`);
-            return false;
-        }
-
-        if (genderVal && user.gender.toLowerCase() !== genderVal) {
-            console.log(`Skip (gender mismatch): ${user.gender}`);
-            return false;
-        }
-
-        if (onlyPhoto && !user.picture_large) {
-            console.log("Skip (no photo)");
-            return false;
-        }
-
-        if (onlyFav && !user.favorite) {
-            console.log("Skip (not favourite)");
-            return false;
-        }
-
-        console.log("Pass:", user.full_name);
-        return true;
-    });
-
-    return result;
+        return validNewUsers;
+    } catch (err) {
+        console.error("Error fetching more users:", err);
+        return [];
+    }
 }
-import { renderTeachers } from './script.js';
-
-document.querySelector(".filters").addEventListener("change", () => {
-    console.log("⚡ Filters changed");
-
-    const filtered = filterUsers(validUsers);
-    renderTeachers(filtered);
-});
 
 
 
@@ -313,32 +261,30 @@ export function sortUsers(users, key, order = "asc") {
     return sorted;
 }
 
-console.log("--------- TASK 4 ---------");
-const sortedByAge = sortUsers(allUsers, "age", "asc");
-console.log("First 5 users sorted by age ascending:", sortedByAge.slice(0, 5));
-
-function findUsers(users, criteria) {
-    return users.filter(user => {
-        for (const key in criteria) {
-            if (user[key] !== criteria[key]) {
-                return false;
-            }
-        }
-        return true;
-    });
-}
-console.log("--------- TASK 5 ---------");
-
-const users28 = findUsers(allUsers, { age: 28 });
-console.log("Users with age 28:", users28);
-
-function getPercentage(users, predicate) {
-    const total = users.length;
-    const matched = users.filter(predicate).length;
-    return (matched / total) * 100;
-}
-console.log("--------- TASK 6 ---------");
-const percentOver30 = getPercentage(allUsers, user => user.age > 30);
-console.log("Percentage of users over 30:", percentOver30.toFixed(2) + "%");
+// const sortedByAge = sortUsers(validUsers, "age", "asc");
+// console.log("First 5 users sorted by age ascending:", sortedByAge.slice(0, 5));
+//
+// function findUsers(users, criteria) {
+//     return users.filter(user => {
+//         for (const key in criteria) {
+//             if (user[key] !== criteria[key]) {
+//                 return false;
+//             }
+//         }
+//         return true;
+//     });
+// }
+//
+// const users28 = findUsers(validUsers, { age: 28 });
+// console.log("Users with age 28:", users28);
+//
+// function getPercentage(users, predicate) {
+//     const total = users.length;
+//     const matched = users.filter(predicate).length;
+//     return (matched / total) * 100;
+// }
+// console.log("--------- TASK 6 ---------");
+// const percentOver30 = getPercentage(validUsers, user => user.age > 30);
+// console.log("Percentage of users over 30:", percentOver30.toFixed(2) + "%");
 
 export {validUsers};

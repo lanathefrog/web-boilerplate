@@ -1,0 +1,20 @@
+{
+  "teachers": [
+    {
+      "id": "Nj4RD9nlDQuen6k6QZ",
+      "full_name": "hulko vladyslav",
+      "course": "Art",
+      "country": "Netherlands",
+      "city": "amsterdam",
+      "email": "hulko@lol.com",
+      "phone": "38048578656",
+      "dob": "2006-03-15",
+      "age": 19,
+      "gender": "Male",
+      "note": "",
+      "picture_large": "",
+      "favorite": false,
+      "bg_color": "#95b18b"
+    }
+  ]
+}
