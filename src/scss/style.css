@@ -186,6 +186,7 @@ body main .teachers-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 20px;
+  margin-bottom: 0;
 }
 body main .teacher-card {
   display: flex;
@@ -212,7 +213,6 @@ body main .teacher-card .avatar-wrapper {
   height: 120px;
   border-radius: 50%;
   border: 5px solid #f75c49;
-  background-color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -337,28 +337,51 @@ body main .statistics table tbody tr:hover {
   background-color: #eaeaea;
 }
 body main .statistics .pages {
-  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
 }
-body main .statistics .pages button {
+body main .statistics .pages .page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+body main .statistics .pages .page-numbers button {
   background: none;
   padding: 0;
   border: none;
   color: #79bdca;
   font-size: 16px;
   cursor: pointer;
-  margin-right: 10px;
   transition: color 0.3s ease;
 }
-body main .statistics .pages button.last {
-  margin-left: 10px;
-}
-body main .statistics .pages button:hover {
+body main .statistics .pages .page-numbers button:hover {
   color: rgb(48.1818181818, 110, 121.8181818182);
 }
-body main .empty-card {
-  width: 150px;
-  height: 200px;
-  margin: 10px;
+body main .statistics .pages .page-numbers button.active {
+  color: rgb(62.6363636364, 143, 158.3636363636);
+  font-weight: bold;
+}
+body main .statistics .pages .arrow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+body main .statistics .pages .arrow-btn:hover {
+  background: #f0f0f0;
+}
+body main .statistics .pages .arrow-btn img {
+  width: 30px;
+  height: 30px;
+  transition: transform 0.3s;
+}
+body main .statistics .pages .arrow-btn img:hover {
+  transform: translateX(3px);
 }
 body main .favourites {
   position: relative;
@@ -661,6 +684,64 @@ body main footer {
 .toast.show {
   opacity: 1;
   transform: translateY(0);
+}
+
+#load-more-btn {
+  background: none;
+  color: #f75c49;
+  border: 2px solid #fa7a00;
+  transition: 0.3s all ease;
+  align-items: center;
+  align-content: center;
+  margin: 10px auto 15px auto;
+  padding: 10px 25px;
+  display: block;
+}
+#load-more-btn:hover {
+  background-color: #f75c49;
+  cursor: pointer;
+  color: white;
+}
+
+#teacherMap {
+  height: 300px;
+  display: none;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.stats-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.stats-toggle button {
+  padding: 6px 14px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background-color: white;
+  transition: 0.2s;
+}
+
+.stats-toggle button.active {
+  background-color: #f75c49;
+  color: white;
+  border-color: #f75c49;
+}
+
+#statsChart {
+  max-width: 500px;
+  display: none;
+  margin-top: 20px;
+}
+
+#teachersReport {
+  width: 100%;
+  height: 600px;
+  display: none;
 }
 
 /*# sourceMappingURL=style.css.map */

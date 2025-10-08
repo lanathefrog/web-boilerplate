@@ -1,0 +1,36 @@
+{
+  "teachers": [
+    {
+      "id": "Nj4RD9nlDQuen6k6QZ",
+      "full_name": "hulko vladyslav",
+      "course": "Art",
+      "country": "Netherlands",
+      "city": "amsterdam",
+      "email": "hulko@lol.com",
+      "phone": "38048578656",
+      "dob": "2006-03-15",
+      "age": 19,
+      "gender": "Male",
+      "note": "",
+      "picture_large": "",
+      "favorite": false,
+      "bg_color": "#95b18b"
+    },
+    {
+      "id": "BPIhKgLnzxhfLCm",
+      "full_name": "Vasya Ovsiichuk",
+      "course": "Art",
+      "country": "France",
+      "city": "Paris",
+      "email": "v.oh@gmail.com",
+      "phone": "380987855452",
+      "dob": "2005-01-01",
+      "age": 20,
+      "gender": "Male",
+      "note": "labubu",
+      "picture_large": "",
+      "favorite": false,
+      "bg_color": "#ff80d7"
+    }
+  ]
+}
