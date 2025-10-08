@@ -117,3 +117,45 @@ body {
     color: white;
   }
 }
+
+#teacherMap {
+
+  height: 300px;
+  display: none;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.stats-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.stats-toggle button {
+  padding: 6px 14px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background-color: white;
+  transition: 0.2s;
+}
+
+.stats-toggle button.active {
+  background-color: $primary-color;
+  color: white;
+  border-color: $primary-color;
+}
+
+#statsChart {
+  max-width: 500px;
+  display: none;
+  margin-top: 20px;
+}
+
+#teachersReport {
+  width: 100%;
+  height: 600px;
+  display: none;
+}

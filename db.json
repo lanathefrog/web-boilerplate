@@ -15,6 +15,22 @@
       "picture_large": "",
       "favorite": false,
       "bg_color": "#95b18b"
+    },
+    {
+      "id": "BPIhKgLnzxhfLCm",
+      "full_name": "Vasya Ovsiichuk",
+      "course": "Art",
+      "country": "France",
+      "city": "Paris",
+      "email": "v.oh@gmail.com",
+      "phone": "380987855452",
+      "dob": "2005-01-01",
+      "age": 20,
+      "gender": "Male",
+      "note": "labubu",
+      "picture_large": "",
+      "favorite": false,
+      "bg_color": "#ff80d7"
     }
   ]
 }

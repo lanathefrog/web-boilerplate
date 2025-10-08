@@ -1,9 +1,12 @@
-import { randomUserMock } from "./mock.js";
-import { additionalUsers } from "./mock.js";
+import {randomUserMock} from "./mock.js";
+import {additionalUsers} from "./mock.js";
+const _ = window._;
+
+
 
 const courses = [
-    "Mathematics","Physics","English","Computer Science","Dancing","Chess",
-    "Biology","Chemistry","Law","Art","Medicine","Statistics"
+    "Mathematics", "Physics", "English", "Computer Science", "Dancing", "Chess",
+    "Biology", "Chemistry", "Law", "Art", "Medicine", "Statistics"
 ];
 
 export function generateID() {
@@ -48,82 +51,78 @@ export async function fetchRandomUsers(count = 50) {
         console.error("Error fetching users:", err);
         return [];
     }
-}
+}function formatUser(raw) {
+    let dobDate = null;
+    let age = null;
 
-function formatUser(raw) {
-    const formatted = {
-        gender: raw.gender,
-        title: raw.name?.title || raw.title,
+    if (typeof raw.dob === "object" && raw.dob?.date) {
+        dobDate = raw.dob.date;
+        age = raw.dob.age;
+    } else if (typeof raw.dob === "string") {
+        dobDate = raw.dob;
+        age = raw.age;
+    } else if (raw.b_day || raw.b_date) {
+        dobDate = raw.b_date || raw.b_day;
+        age = raw.age;
+    }
+
+    return {
+        gender: _.capitalize(raw.gender),
+        title: _.get(raw, "name.title", raw.title),
         full_name: raw.name ? `${raw.name.first} ${raw.name.last}` : raw.full_name,
-        city: raw.location?.city || raw.city,
-        state: raw.location?.state || raw.state,
-        country: raw.location?.country || raw.country,
-        postcode: raw.location?.postcode || raw.postcode,
-        coordinates: raw.location?.coordinates || raw.coordinates,
-        timezone: raw.location?.timezone || raw.timezone,
+        city: _.get(raw, "location.city", raw.city),
+        state: _.get(raw, "location.state", raw.state),
+        country: _.get(raw, "location.country", raw.country),
+        postcode: _.get(raw, "location.postcode", raw.postcode),
+        coordinates: _.get(raw, "location.coordinates", raw.coordinates),
+        timezone: _.get(raw, "location.timezone", raw.timezone),
         email: raw.email,
-        b_date: raw.dob?.date || raw.b_day,
-        age: raw.dob?.age || raw.age,
+        b_date: dobDate,
+        age: age,
         phone: raw.phone,
-        picture_large: raw.picture?.large || raw.picture_large,
-        picture_thumbnail: raw.picture?.thumbnail || raw.picture_thumbnail,
-        id: raw.id?.value ? raw.id.value : generateID(),
-        favorite: (raw.favorite === undefined || raw.favorite === null) ? pickRandomBoolean() : raw.favorite,
-        course: (raw.course === undefined || raw.course === null) ? pickRandomCourse() : raw.course,
-        bg_color: raw.bg_color || generateBackgroundColor(),
-        note: (raw.note === undefined || raw.note === null) ? '' : raw.note
+        picture_large: _.get(raw, "picture.large", raw.picture_large),
+        picture_thumbnail: _.get(raw, "picture.thumbnail", raw.picture_thumbnail),
+        id: _.get(raw, "id.value", raw.id || generateID()),
+        favorite: _.defaultTo(raw.favorite, pickRandomBoolean()),
+        course: _.defaultTo(raw.course, pickRandomCourse()),
+        bg_color: _.defaultTo(raw.bg_color, generateBackgroundColor()),
+        note: _.defaultTo(raw.note, "")
     };
-
-    return formatted;
 }
+
+
+
 
 function mergeAndFormatUsers(arrA, arrB) {
-    const formattedA = arrA.map(formatUser);
-    const formattedB = arrB.map(formatUser);
+    const formattedA = _.map(arrA, formatUser);
+    const formattedB = _.map(arrB, formatUser);
 
-    const result = [];
+    const result = _.cloneDeep(formattedA);
     const mapById = new Map();
     const mapByName = new Map();
 
-    for (const u of formattedA) {
-        result.push(u);
+    _.forEach(formattedA, u => {
         if (u.id) mapById.set(u.id, u);
-        const n = normName(u.full_name);
+        const n = _.toLower(_.trim(u.full_name));
         if (n) mapByName.set(n, u);
-    }
+    });
 
-    for (const u of formattedB) {
-        let existing = null;
-
-        if (u.id && mapById.has(u.id)) {
-            existing = mapById.get(u.id);
-        } else {
-            const n = normName(u.full_name);
-            if (n && mapByName.has(n)) existing = mapByName.get(n);
-        }
+    _.forEach(formattedB, u => {
+        const n = _.toLower(_.trim(u.full_name));
+        let existing = mapById.get(u.id) || mapByName.get(n);
 
         if (existing) {
-            for (const key of Object.keys(u)) {
-                const valExisting = existing[key];
-                const valNew = u[key];
-
-                if (valExisting === undefined || valExisting === null || valExisting === '') {
-                    existing[key] = valNew;
+            _.forOwn(u, (val, key) => {
+                if (_.isNil(existing[key]) || existing[key] === "") {
+                    existing[key] = val;
                 }
-            }
-
-            if (!existing.id) existing.id = generateID();
-            if (existing.favorite === undefined || existing.favorite === null) existing.favorite = pickRandomBoolean();
-            if (existing.course === undefined || existing.course === null) existing.course = pickRandomCourse();
-            if (!existing.bg_color) existing.bg_color = generateBackgroundColor();
-            if (existing.note === undefined || existing.note === null) existing.note = '';
+            });
         } else {
             result.push(u);
             if (u.id) mapById.set(u.id, u);
-            const n = normName(u.full_name);
             if (n) mapByName.set(n, u);
         }
-    }
+    });
 
     return result;
 }
@@ -151,47 +150,37 @@ function isValidPhone(phone) {
 }
 
 function normalizeFullName(fullName) {
-    if (!fullName || typeof fullName !== "string") return fullName;
-
-    return fullName
-        .split(" ")
-        .map(word =>
-            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        )
-        .join(" ");
+    if (!_.isString(fullName)) return fullName;
+    return _.startCase(_.toLower(fullName));
 }
 
 function validateUser(user) {
-    if (isNaN(user.age)) {
-        console.error("Invalid age for user:", user.id, " ", user.full_name);
+    if (_.isNaN(user.age)) {
+        console.error("Invalid age:", user.id, user.full_name);
         return false;
     }
 
-    user.full_name = normalizeFullName(user.full_name);
-    user.gender = normalizeCapitalizedString(user.gender);
-    user.note = normalizeCapitalizedString(user.note);
-    user.state = normalizeCapitalizedString(user.state);
-    user.city = normalizeCapitalizedString(user.city);
-    user.country = normalizeCapitalizedString(user.country);
+    _.assign(user, {
+        full_name: normalizeFullName(user.full_name),
+        gender: _.capitalize(user.gender),
+        note: _.capitalize(user.note),
+        state: _.capitalize(user.state),
+        city: _.capitalize(user.city),
+        country: _.capitalize(user.country),
+        phone: user.phone ? user.phone.replace(/\D/g, "") : user.phone
+    });
 
-    if (user.phone) {
-        user.phone = normalizePhone(user.phone);
-    }
-    if (!isValidPhone(user.phone)) {
-        console.error("Invalid phone for user:", user.id, " ", user.full_name);
-        return false;
-    }
+    if (!/^\d{7,15}$/.test(user.phone)) return false;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)) return false;
 
-    if (!isValidEmail(user.email)) {
-        console.error("Invalid email for user:", user.id, " ", user.full_name);
-        return false;
-    }
     return true;
 }
 
+
 function validateUsers(users) {
-    return users.filter(validateUser);
+    return _.filter(users, validateUser);
 }
+
 
 
 let validUsers = [];
@@ -235,30 +224,9 @@ export async function fetchMoreUsers() {
 }
 
 
-
 // --------- TASK 4 ---------
-
 export function sortUsers(users, key, order = "asc") {
-    const sorted = [...users];
-
-    sorted.sort((a, b) => {
-        const valA = a[key];
-        const valB = b[key];
-
-        if (typeof valA === "number" && typeof valB === "number") {
-            return order === "asc" ? valA - valB : valB - valA;
-        }
-
-        if (typeof valA === "string" && typeof valB === "string") {
-            return order === "asc"
-                ? valA.localeCompare(valB, undefined, { sensitivity: "base" })
-                : valB.localeCompare(valA, undefined, { sensitivity: "base" });
-        }
-
-        return 0;
-    });
-
-    return sorted;
+    return _.orderBy(users, [key], [order]);
 }
 
 // const sortedByAge = sortUsers(validUsers, "age", "asc");

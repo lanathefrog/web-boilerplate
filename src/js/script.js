@@ -1,4 +1,7 @@
 import {sortUsers, generateID, fetchMoreUsers} from "./functions.js";
+const _ = window._;
+
+
 const teachersList = document.querySelector(".teachers-list");
 const favouritesRow = document.querySelector(".favourites-row");
 const viewModal = document.getElementById("viewModal");
@@ -8,6 +11,7 @@ const filtersForm = document.querySelector(".filters");
 
 let validUsers = [];
 let favourites = [];
+
 export function initApp(users) {
     validUsers = users;
     favourites = validUsers.filter(u => u.favorite).map(u => u.id);
@@ -51,6 +55,7 @@ viewModal.addEventListener("click", (e) => {
 
 renderTeachers(applyFilters());
 renderFavourites();
+
 function createTeacherCard(user) {
     const card = document.createElement("div");
     card.classList.add("teacher-card");
@@ -133,7 +138,6 @@ favouritesRow.addEventListener("click", e => {
 });
 
 
-
 export function renderTeachers(users) {
     teachersList.innerHTML = "";
     users.forEach(user => {
@@ -150,32 +154,17 @@ function filterUsers(users) {
     const onlyPhoto = document.getElementById("photoFilter").checked;
     const onlyFav = document.getElementById("favFilter").checked;
 
-    return users.filter(user => {
+    return _.filter(users, user => {
         if (ageVal) {
             const [min, maxStr] = ageVal.split("-");
-            const minNum = Number(min);
-            const maxNum = maxStr === "Infinity" ? Infinity : Number(maxStr);
+            const minNum = _.toNumber(min);
+            const maxNum = maxStr === "Infinity" ? Infinity : _.toNumber(maxStr);
             if (user.age < minNum || user.age > maxNum) return false;
         }
-
-        if (countryVal && user.country !== countryVal) {
-            return false;
-        }
-
-        if (genderVal && genderVal !== "any") {
-            if (user.gender.toLowerCase() !== genderVal.toLowerCase()) {
-                return false;
-            }
-        }
-
-        if (onlyPhoto && !user.picture_large) {
-            return false;
-        }
-
-        if (onlyFav && !favourites.includes(user.id)) {
-            return false;
-        }
-
+        if (countryVal && user.country !== countryVal) return false;
+        if (genderVal && genderVal !== "any" && _.toLower(user.gender) !== _.toLower(genderVal)) return false;
+        if (onlyPhoto && !user.picture_large) return false;
+        if (onlyFav && !_.includes(favourites, user.id)) return false;
         return true;
     });
 }
@@ -206,14 +195,16 @@ function toggleFavourite(userId) {
     updateAllStars();
     renderFavourites(getFilteredAndSearchedUsers());
 }
+
+
 function initFilters() {
     const ageRanges = [
-        { label: "18–24", min: 18, max: 24 },
-        { label: "25–30", min: 25, max: 30 },
-        { label: "31–35", min: 31, max: 35 },
-        { label: "36–40", min: 36, max: 40 },
-        { label: "41–50", min: 41, max: 50 },
-        { label: "51+", min: 51, max: Infinity }
+        {label: "18–24", min: 18, max: 24},
+        {label: "25–30", min: 25, max: 30},
+        {label: "31–35", min: 31, max: 35},
+        {label: "36–40", min: 36, max: 40},
+        {label: "41–50", min: 41, max: 50},
+        {label: "51+", min: 51, max: Infinity}
     ];
 
     const ageSelect = document.getElementById("ageFilter");
@@ -238,6 +229,12 @@ function initFilters() {
         renderTeachers(filtered);
         renderStatisticsWithPagination(filtered);
         renderFavourites(filtered);
+
+
+        if (currentStatsMode === "chart") {
+            renderStatsChart(filtered);
+        }
+
     });
 }
 
@@ -251,6 +248,8 @@ function getFilteredAndSearchedUsers() {
         user.note.toLowerCase().includes(query) ||
         user.age.toString() === query
     );
+
+
 }
 
 
@@ -274,6 +273,7 @@ function updateAllStars() {
         }
     }
 }
+
 function showTeacherInfo(user) {
     document.getElementById("teacherPhoto").src = user.picture_large || "";
     document.getElementById("teacherName").textContent = user.full_name;
@@ -284,6 +284,15 @@ function showTeacherInfo(user) {
     document.getElementById("teacherPhone").textContent = user.phone;
     document.getElementById("teacherNotes").textContent = user.note || "";
 
+    const daysLeft = daysUntilBirthday(user.b_date);
+
+
+    document.getElementById("teacherBirthdayCountdown").textContent =
+        daysLeft === 0
+            ? "Today is the birthday!"
+            : `${daysLeft} days left`;
+
+
     const modalStar = document.getElementById("modalStar");
     modalStar.dataset.id = user.id;
     modalStar.src = isFavourite(user.id) ? "images/Star 1.svg" : "images/Star 2.svg";
@@ -292,6 +301,63 @@ function showTeacherInfo(user) {
         e.stopPropagation();
         toggleFavourite(user.id);
     };
+
+    // LEAFLET MAP
+    const mapContainer = document.getElementById("teacherMap");
+    mapContainer.style.display = "none";
+    if (!window._leafletMapInstance) {
+        window._leafletMapInstance = null;
+    }
+    let map = window._leafletMapInstance;
+
+    function initMap(lat, lng) {
+
+        if (map) {
+            map.remove();
+            map = null;
+            window._leafletMapInstance = null;
+        } else {
+        }
+
+        const container = document.getElementById("teacherMap");
+        if (!container) {
+            return;
+        }
+
+        map = L.map(container).setView([lat, lng], 6);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        }).addTo(map);
+
+        L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup(`${user.full_name} — ${user.city}, ${user.country}`)
+            .openPopup();
+
+        window._leafletMapInstance = map;
+    }
+
+    const toggleMapBtn = document.getElementById("toggleMap");
+    toggleMapBtn.onclick = () => {
+
+        if (mapContainer.style.display === "none") {
+            mapContainer.style.display = "block";
+            const lat = parseFloat(user.coordinates?.latitude) || 50.4501;
+            const lng = parseFloat(user.coordinates?.longitude) || 30.5234;
+            console.log("➡️ Opening map for:", user.full_name);
+            initMap(lat, lng);
+            setTimeout(() => {
+                if (map) {
+                    map.invalidateSize();
+                }
+            }, 200);
+        } else {
+            mapContainer.style.display = "none";
+        }
+    };
+
 
     viewModal.style.display = "block";
 }
@@ -305,7 +371,7 @@ function applyFilters() {
     const ageVal = formData.get("age");
     if (ageVal) {
         const [min, max] = ageVal.split("-").map(Number);
-        filters.age = { min, max };
+        filters.age = {min, max};
     }
 
     const gender = formData.get("sex");
@@ -359,6 +425,7 @@ statsTable.querySelectorAll("th").forEach((th, index) => {
         renderStatisticsWithPagination(sortedUsers);
     });
 });
+
 function renderStatistics(users) {
     tbody.innerHTML = "";
 
@@ -386,6 +453,7 @@ function renderStatisticsWithPagination(users) {
     renderStatistics(usersToShow);
     renderPaginationButtons(totalPages, users);
 }
+
 function renderPaginationButtons(totalPages, users) {
     const container = document.querySelector(".pages");
     container.innerHTML = "";
@@ -448,17 +516,17 @@ const searchInput = document.querySelector(".search-container input");
 const searchButton = document.getElementById("searchButton");
 
 function searchUsers(users, query) {
+    query = _.toLower(_.trim(query));
     if (!query) return users;
-    query = query.toLowerCase().trim();
 
-    return users.filter(user => {
-        const nameMatch = user.full_name.toLowerCase().includes(query);
-        const noteMatch = user.note.toLowerCase().includes(query);
-        const ageMatch = user.age.toString() === query;
-
-        return nameMatch || noteMatch || ageMatch;
-    });
+    return _.filter(users, user =>
+        _.some(['full_name', 'note'], field =>
+            _.includes(_.toLower(_.get(user, field, "")), query)
+        ) || user.age.toString() === query
+    );
 }
+
+
 function updateViews() {
     const query = searchInput.value;
 
@@ -477,6 +545,10 @@ function updateViews() {
         const card = createTeacherCard(user);
         favouritesRow.appendChild(card);
     });
+
+    if (currentStatsMode === "chart") {
+        renderStatsChart(searchedUsers);
+    }
 }
 
 searchButton.addEventListener("click", updateViews);
@@ -527,6 +599,7 @@ addClose.addEventListener("click", () => {
 addModal.addEventListener("click", (e) => {
     if (e.target === addModal) addModal.style.display = "none";
 });
+
 function populateSelects() {
     const specialitySelect = document.getElementById("specialitySelect");
     const countrySelect = document.getElementById("countrySelect");
@@ -548,6 +621,7 @@ function populateSelects() {
         countrySelect.appendChild(opt);
     });
 }
+
 addForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -591,14 +665,14 @@ addForm.addEventListener("submit", async (e) => {
         note: notes,
         picture_large: "",
         favorite: false,
-        bg_color : color
+        bg_color: color
     };
 
 
     try {
         const response = await fetch("http://localhost:3002/teachers", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(newTeacher)
         });
 
@@ -612,7 +686,7 @@ addForm.addEventListener("submit", async (e) => {
 
         const newCard = document.querySelector(`.teacher-card[data-id="${savedTeacher.id}"]`);
         if (newCard) {
-            newCard.scrollIntoView({ behavior: "smooth", block: "center" });
+            newCard.scrollIntoView({behavior: "smooth", block: "center"});
         }
 
         addModal.style.display = "none";
@@ -633,7 +707,7 @@ const sections = {
 function scrollToSection(name) {
     const section = sections[name];
     if (!section) return;
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    section.scrollIntoView({behavior: "smooth", block: "start"});
 }
 
 function handleTabClick(e) {
@@ -654,4 +728,194 @@ function updateActiveTabs(activeName) {
 
 document.querySelectorAll(".tabs .tab").forEach(tab => {
     tab.addEventListener("click", handleTabClick);
+});
+
+
+// ------ LAB 05 ------
+
+const showTableBtn = document.getElementById("showTableBtn");
+const showChartBtn = document.getElementById("showChartBtn");
+const statsTableSection = document.querySelector(".statistics table");
+const statsChartCanvas = document.getElementById("statsChart");
+const pagesContainer = document.querySelector(".statistics .pages"); // ← додаємо сюди
+
+let statsChart = null;
+
+function renderStatsChart(users) {
+\
+    const countryCounts = {};
+    users.forEach(user => {
+        countryCounts[user.country] = (countryCounts[user.country] || 0) + 1;
+    });
+
+    const labels = Object.keys(countryCounts);
+    const data = Object.values(countryCounts);
+
+    if (statsChart) {
+        statsChart.destroy();
+    }
+
+    statsChart = new Chart(statsChartCanvas, {
+        type: "pie",
+        data: {
+            labels,
+            datasets: [{
+                label: "Teachers by Country",
+                data,
+                backgroundColor: [
+                    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0",
+                    "#9966FF", "#FF9F40", "#C9CBCF", "#7FC97F"
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: "bottom"
+                },
+                title: {
+                    display: true,
+                    text: "Teachers Distribution by Country"
+                }
+            }
+        }
+    });
+}
+let currentStatsMode = "table"; // або "chart"
+\
+showTableBtn.addEventListener("click", () => {
+    currentStatsMode = "table";
+    showTableBtn.classList.add("active");
+    byCountryBtn.classList.remove("active");
+    flatTableBtn.classList.remove("active");
+    showChartBtn.classList.remove("active");
+
+    statsTableSection.style.display = "table";
+    statsChartCanvas.style.display = "none";
+    if (pagesContainer) pagesContainer.style.display = "flex";
+});
+
+showChartBtn.addEventListener("click", () => {
+    currentStatsMode = "chart";
+    showChartBtn.classList.add("active");
+    showTableBtn.classList.remove("active");
+    byCountryBtn.classList.remove("active");
+    flatTableBtn.classList.remove("active");
+
+    statsTableSection.style.display = "none";
+    statsChartCanvas.style.display = "block";
+    if (pagesContainer) pagesContainer.style.display = "none";
+
+    const usersToShow = getFilteredAndSearchedUsers();
+    renderStatsChart(usersToShow);
+});
+
+function daysUntilBirthday(b_date) {
+    if (!b_date) return "—";
+    const today = dayjs();
+    const birth = dayjs(b_date);
+
+    let nextBirthday = birth.year(today.year());
+
+    if (nextBirthday.isBefore(today, "day")) {
+        nextBirthday = nextBirthday.add(1, "year");
+    }
+
+    const diff = nextBirthday.diff(today, "day");
+    return diff;
+}
+const flatTableBtn = document.getElementById("flatTableBtn");
+const byCountryBtn = document.getElementById("byCountryBtn");
+const teachersReport = document.getElementById("teachersReport");
+
+let pivot = null;
+
+function initPivot(data) {
+    if (pivot) {
+        pivot.dispose();
+        teachersReport.innerHTML = "";
+    }
+    pivot = new WebDataRocks({
+        container: "#teachersReport",
+        toolbar: true,
+        report: {
+            dataSource: {
+                data: data
+            }
+        }
+    });
+}
+
+flatTableBtn.addEventListener("click", () => {
+    flatTableBtn.classList.add("active");
+    showTableBtn.classList.remove("active");
+    showChartBtn.classList.remove("active");
+    byCountryBtn.classList.remove("active");
+
+    currentStatsMode = "flat";
+    statsTableSection.style.display = "none";
+    statsChartCanvas.style.display = "none";
+    if (pagesContainer) pagesContainer.style.display = "none";
+    teachersReport.style.display = "block";
+
+    const users = getFilteredAndSearchedUsers();
+
+    initPivot(users.map(u => ({
+        Name: u.full_name,
+        Speciality: u.course,
+        Age: u.age,
+        Gender: u.gender,
+        Country: u.country
+    })));
+
+    pivot.setReport({
+        dataSource: { data: users },
+        slice: {
+            reportFilters: [],
+            rows: [],
+            columns: [],
+            measures: [
+                { uniqueName: "full_name", caption: "Name" },
+                { uniqueName: "course", caption: "Speciality" },
+                { uniqueName: "age", caption: "Age" },
+                { uniqueName: "gender", caption: "Gender" },
+                { uniqueName: "country", caption: "Country" }
+            ]
+        },
+        options: { grid: { type: "flat" } }
+    });
+});
+
+byCountryBtn.addEventListener("click", () => {
+    byCountryBtn.classList.add("active");
+    flatTableBtn.classList.remove("active");
+    showTableBtn.classList.remove("active");
+    showChartBtn.classList.remove("active");
+    currentStatsMode = "country";
+    statsTableSection.style.display = "none";
+    statsChartCanvas.style.display = "none";
+    if (pagesContainer) pagesContainer.style.display = "none";
+    teachersReport.style.display = "block";
+
+    const users = getFilteredAndSearchedUsers();
+
+    initPivot(users.map(u => ({
+        Name: u.full_name,
+        Speciality: u.course,
+        Age: u.age,
+        Gender: u.gender,
+        Country: u.country
+    })));
+
+    pivot.setReport({
+        dataSource: { data: users },
+        slice: {
+            rows: [{ uniqueName: "country", caption: "Country" }],
+            measures: [
+                { uniqueName: "full_name", aggregation: "count", caption: "Teachers Count" }
+            ]
+        }
+    });
 });
