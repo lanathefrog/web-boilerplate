@@ -12,10 +12,24 @@
     <title>Project</title>
 
     <link rel="stylesheet" href="./scss/style.css">
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.webdatarocks.com/latest/webdatarocks.min.css" />
+
+    <script src="https://cdn.webdatarocks.com/latest/webdatarocks.toolbar.min.js"></script>
+    <script src="https://cdn.webdatarocks.com/latest/webdatarocks.js"></script>
+
+
+
+
     <script src="js/script.js" type="module"></script>
-    <script src="js/lab02.js" type="module"></script>
-
-
+    <script src="js/functions.js" type="module"></script>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -84,10 +98,24 @@
 
 
         </section>
+        <button id="load-more-btn">Далі</button>
         <hr>
 
         <section class="statistics">
             <h1>Statistics</h1>
+            <div class="stats-toggle">
+                <button id="showTableBtn" class="active">Table</button>
+                <button id="showChartBtn">Pie Chart</button>
+                <button id="flatTableBtn">Flat Table</button>
+                <button id="byCountryBtn">Report by Country</button>
+
+            </div>
+            <div id="teachersReport"></div>
+
+
+
+            <canvas id="statsChart"></canvas>
+
             <div class="table-wrapper">
 
             <table>
@@ -107,9 +135,15 @@
             </table>
             </div>
 
-            <div class ="pages">
+            <div class="pages">
+                <div class="page-numbers">
 
+                </div>
+                <div class="arrow-btn">
+                    <img src="images/arrow-right.svg" alt="Next">
+                </div>
             </div>
+
         </section>
         <hr>
         <section class="favourites">
@@ -227,6 +261,8 @@
                     <p id="teacherAgeGender"></p>
                     <p id="teacherEmail"></p>
                     <p id="teacherPhone"></p>
+                    <p><strong>Days until next birthday:</strong> <span id="teacherBirthdayCountdown"></span></p>
+
                 </div>
 
                 <img id="modalStar" class="favorite-star-icon" src="images/Star 2.svg" alt="Favorite Star">
@@ -234,6 +270,7 @@
 
             <p id="teacherNotes"></p>
             <p id="toggleMap">toggle map</p>
+            <div id="teacherMap"></div>
         </div>
     </div>
 

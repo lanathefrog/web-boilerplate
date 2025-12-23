@@ -1,9 +1,11 @@
-.statistics{
+.statistics {
   width: 100%;
+
   .table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -13,7 +15,6 @@
     th, td {
       padding: 10px 15px;
     }
-
 
 
     th {
@@ -80,29 +81,60 @@
     }
   }
 
-  .pages{
-    margin-top: 20px;
-    button{
-      background: none;
-      padding: 0;
-      border: none;
-      color: $link-color;
-      font-size: $font-size-base;
-      cursor: pointer;
-      margin-right: 10px;
-      transition: color 0.3s ease;
-      &.last{
-        margin-left: 10px;
+  .pages {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+
+    .page-numbers {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      button {
+        background: none;
+        padding: 0;
+        border: none;
+        color: $link-color;
+        font-size: $font-size-base;
+        cursor: pointer;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: darken($link-color, 30%);
+        }
+
+        &.active {
+          color: darken($link-color, 20%);
+          font-weight: bold;
+        }
       }
-      &:hover{
-        color: darken($link-color, 30%);
+
+    }
+
+    .arrow-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover {
+        background: #f0f0f0;
+      }
+
+      img {
+        width: 30px;
+        height: 30px;
+        transition: transform 0.3s;
+
+        &:hover {
+          transform: translateX(3px);
+        }
       }
     }
   }
-}
-
-.empty-card {
-  width: 150px;
-  height: 200px;
-  margin: 10px;
 }
