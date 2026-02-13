@@ -8,7 +8,7 @@ const courses = [
     "Biology","Chemistry","Law","Art","Medicine","Statistics"
 ];
 
-function generateID() {
+export function generateID() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const length = Math.floor(Math.random() * (20 - 15 + 1)) + 15;
     let id = '';
@@ -133,7 +133,6 @@ function normalizeCapitalizedString(value) {
 
 function isValidEmail(value) {
     if (value === undefined) return false;
-
     return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
@@ -196,51 +195,102 @@ console.log("valid users:", validUsers.length);
 console.log("first valid:", validUsers[0]);
 console.log("last valid:", validUsers[validUsers.length - 1]);
 
-// --------- TASK 3 ---------
+// --------- TASK 3 (фільтрація з UI) ---------
 
-function filterUsers(users, filters) {
-    return users.filter(user => {
-        for (const key in filters) {
-            const filterValue = filters[key];
-            const userValue = user[key];
+const ageRanges = [
+    { label: "18–24", min: 18, max: 24 },
+    { label: "25–30", min: 25, max: 30 },
+    { label: "31–35", min: 31, max: 35 },
+    { label: "36–40", min: 36, max: 40 },
+    { label: "41–50", min: 41, max: 50 },
+    { label: "51+", min: 51, max: Infinity }
+];
 
-            if (typeof filterValue === "string") {
-                if (userValue !== filterValue) return false;
+const ageSelect = document.getElementById("ageFilter");
+ageRanges.forEach(r => {
+    const opt = document.createElement("option");
+    opt.value = `${r.min}-${r.max}`;
+    opt.textContent = r.label;
+    ageSelect.appendChild(opt);
+});
 
-            } else if (Array.isArray(filterValue)) {
-                if (!filterValue.includes(userValue)) return false;
+const countries = [...new Set(validUsers.map(u => u.country).filter(Boolean))].sort();
+const countrySelect = document.getElementById("countryFilter");
+countries.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    countrySelect.appendChild(opt);
+});
 
-            } else if (typeof filterValue === "object" && filterValue !== null) {
-                const { min, max } = filterValue;
-                if (typeof userValue !== "number") return false;
-                if (min !== undefined && userValue < min) return false;
-                if (max !== undefined && userValue > max) return false;
+function filterUsers(users) {
+    const ageVal = ageSelect.value;
+    const countryVal = countrySelect.value;
+    const genderVal = document.getElementById("genderFilter").value;
+    const onlyPhoto = document.getElementById("photoFilter").checked;
+    const onlyFav = document.getElementById("favFilter").checked;
+
+    console.log("Active filters:", {
+        ageVal,
+        countryVal,
+        genderVal,
+        onlyPhoto,
+        onlyFav
+    });
+
+    const result = users.filter(user => {
+        console.log("Checking user:", user.full_name, user);
+
+        if (ageVal) {
+            const [min, maxStr] = ageVal.split("-");
+            const minNum = Number(min);
+            const maxNum = maxStr === "Infinity" ? Infinity : Number(maxStr);
+            if (user.age < minNum || user.age > maxNum) {
+                console.log(`Skip (age mismatch): ${user.age}`);
+                return false;
             }
         }
+
+        if (countryVal && user.country !== countryVal) {
+            console.log(`Skip (country mismatch): ${user.country}`);
+            return false;
+        }
+
+        if (genderVal && user.gender.toLowerCase() !== genderVal) {
+            console.log(`Skip (gender mismatch): ${user.gender}`);
+            return false;
+        }
+
+        if (onlyPhoto && !user.picture_large) {
+            console.log("Skip (no photo)");
+            return false;
+        }
+
+        if (onlyFav && !user.favorite) {
+            console.log("Skip (not favourite)");
+            return false;
+        }
+
+        console.log("Pass:", user.full_name);
         return true;
     });
+
+    return result;
 }
+import { renderTeachers } from './script.js';
 
-console.log("--------- TASK 3 ---------");
-const filtered1 = filterUsers(allUsers, {
-    country: "Norway",
-    gender: "female"
-});
-console.log("Filtered users (Norway + female):", filtered1.length);
+document.querySelector(".filters").addEventListener("change", () => {
+    console.log("⚡ Filters changed");
 
-const filtered2 = filterUsers(allUsers, {
-    country: ["Germany", "France", "Norway"]
+    const filtered = filterUsers(validUsers);
+    renderTeachers(filtered);
 });
-console.log("Filtered users (several countries):", filtered2.length);
 
-const filtered3 = filterUsers(allUsers, {
-    age: { min: 20, max: 30 }
-});
-console.log("Filtered users (20-30):", filtered3.length);
+
 
 // --------- TASK 4 ---------
 
-function sortUsers(users, key, order = "asc") {
+export function sortUsers(users, key, order = "asc") {
     const sorted = [...users];
 
     sorted.sort((a, b) => {
@@ -290,3 +340,5 @@ function getPercentage(users, predicate) {
 console.log("--------- TASK 6 ---------");
 const percentOver30 = getPercentage(allUsers, user => user.age > 30);
 console.log("Percentage of users over 30:", percentOver30.toFixed(2) + "%");
+
+export {validUsers};
