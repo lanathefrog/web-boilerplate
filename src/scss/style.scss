@@ -1,0 +1,65 @@
+@import 'variables';
+
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  background-color: #e3e3e3;
+
+  h1 {
+    margin: 0;
+    margin-bottom: 20px;
+  }
+
+  section {
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
+  main {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    align-content: center;
+    align-items: center;
+    width: 55%;
+    padding: 20px 50px;
+    margin: 10px auto;
+
+    @import "header";
+    @import "tabs";
+
+    hr {
+      width: 70%;
+    }
+
+    .tab-content {
+      h1 {
+        text-align: center;
+        font-size: 2 * $font-size-base;
+      }
+
+      @import "filters";
+    }
+
+    .teachers-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 20px;
+    }
+
+    @import "teacher_card";
+
+    @import "table";
+
+    @import "favourites";
+
+    @import "add_modal";
+    @import "view_modal";
+
+    footer {
+      font-size: $font-size-small;
+      color: #808080;
+    }
+  }
+}

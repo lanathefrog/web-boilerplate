@@ -1,0 +1,42 @@
+.filters {
+  display: flex;
+  min-width: 100px;
+  justify-content: left;
+
+  align-items: center;
+  color: #808080;
+  width: 100%;
+  flex-wrap: wrap;
+
+  label {
+    margin-right: 10px;
+    font-size: $font-size-base;
+    padding: 10px;
+    position: relative;
+
+    select {
+      font-size: $font-size-base;
+      color: black;
+      padding: 8px;
+
+      border: 1px solid #000000;
+
+    }
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      transform: translateY(-50%);
+      height: 30px;
+      border-right: 1px dashed #808080;
+    }
+
+    &:last-child::after {
+      display: none;
+    }
+
+
+  }
+
+}
