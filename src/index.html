@@ -1,21 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
 
-   <head itemscope itemtype="http://schema.org/WebSite">
+<head itemscope itemtype="http://schema.org/WebSite">
 
-      <meta charset="utf-8">
-      <meta http-equiv="x-ua-compatible" content="ie=edge">
-      <meta name="msapplication-tap-highlight" content="no">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-      <title>Project</title>
 
-      <link rel="stylesheet" href="./css/app.css">
+    <title>Project</title>
 
-   </head>
+    <link rel="stylesheet" href="./scss/style.css">
+    <script src="js/script.js" defer></script>
 
-   <body itemscope itemtype="http://schema.org/WebPage">
-      <script type="text/javascript" src="./js/app.js"></script>
-      
-  </body>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+
+<main>
+    <header>
+        <h1>Teachinder</h1>
+        <div class="search-container">
+            <input type="text" placeholder="Search...">
+            <button>Search</button>
+        </div>
+    </header>
+    <section class="tabs">
+        <div class="tabs-buttons">
+            <button class="tab active">Teachers</button>
+            <button class="tab">Statistics</button>
+            <button class="tab">Favourites</button>
+            <button class="tab">About</button>
+        </div>
+        <button class="add-teacher">Add teacher</button>
+    </section>
+
+    <hr>
+
+
+    <section class="tab-content">
+        <h1>Teachers</h1>
+
+        <form class="filters">
+            <label>
+                Age:
+                <select name="age">
+                    <option value="">Any</option>
+                    <option value="18-31">18–31</option>
+                    <option value="31-50">31-50</option>
+                </select>
+            </label>
+
+            <label>
+                Region:
+                <select name="region">
+                    <option value="">Any</option>
+                    <option value="europe">Europe</option>
+                    <option value="asia">Asia</option>
+                </select>
+            </label>
+
+            <label>
+                Sex:
+                <select name="sex">
+                    <option value="">Any</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                </select>
+            </label>
+
+            <label>
+                <input type="checkbox" name="only-photo">
+                Only photo
+            </label>
+
+            <label>
+                <input type="checkbox" name="only-favourites">
+                Only favourites
+            </label>
+
+        </form>
+
+        <section class="teachers-list">
+            <div class="teacher-card">
+                <div class="avatar-wrapper">
+                    <img src="https://i.pinimg.com/736x/6c/55/83/6c558305f2a370fa282839e12f319a39.jpg" alt="Teacher Photo">
+                    <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                </div>
+
+                <div class="teacher-info">
+                    <h2>Cool<br>Rat</h2>
+                    <p class="field">Mathematics</p>
+                    <p class="country">USA</p>
+                </div>
+            </div>
+
+            <div class="teacher-card">
+                <div class="avatar-wrapper">
+                <img src="images/photo_2024-04-02_23-01-41.jpg" alt="Bachynska Larysa Photo">
+                </div>
+                <div class="teacher-info">
+
+                    <h2>Larysa<br>Bachynska</h2>
+                    <p class="field">English</p>
+                    <p class="country">UK</p>
+                </div>
+            </div>
+
+            <div class="teacher-card">
+                <div class="avatar-wrapper">
+                <img src="images/289538248_5501498226578477_2396764328176557217_n.jpg" alt="Perepelytsia Kyrylo Photo">
+                <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                </div>
+                <div class="teacher-info">
+                    <h2>Kyrylo<br>Perepelytsia</h2>
+                    <p class="field">English</p>
+                    <p class="country">Israel</p>
+                </div>
+            </div>
+
+            <div class="teacher-card">
+                <div class="avatar-wrapper">
+                <img src="images/273886845_5270447699655446_8736771754621895395_n.jpg" alt="Bublyk Photo">
+                </div>
+                <div class="teacher-info">
+                    <h2>Volodymyr<br>Bublyk</h2>
+                    <p class="field">C++</p>
+                    <p class="country">Not Kyiv</p>
+                </div>
+            </div>
+
+            <div class="teacher-card">
+                <div class="avatar-wrapper">
+                <img src="images/ab67616d00001e02ffe8ad517ca19e5e1edf2ff3.jpeg" alt="John Pork Photo">
+                <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                </div>
+                <div class="teacher-info">
+                    <h2>John<br>Pork</h2>
+                    <p class="field">Telephone communications</p>
+                    <p class="country">USA</p>
+                </div>
+            </div>
+            <div class="teacher-card">
+                <div class="avatar-wrapper no-photo">
+                    <span class="initials">J.D.</span>
+                </div>
+                <div class="teacher-info">
+                    <h2>John<br>Doe</h2>
+                    <p class="field">Mathematics</p>
+                    <p class="country">USA</p>
+                </div>
+            </div>
+
+            <div class="teacher-card">
+                <div class="avatar-wrapper">
+                    <img src="https://i.pinimg.com/736x/1a/b9/d1/1ab9d1107887bc81e0fdfe5907160c4d.jpg" alt="John Pork Photo">
+                    <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                </div>
+                <div class="teacher-info">
+                    <h2>Makaka<br>Abizyana</h2>
+                    <p class="field">Chemistry</p>
+                    <p class="country">Finland</p>
+                </div>
+            </div>
+
+
+
+        </section>
+        <hr>
+
+        <section class="statistics">
+            <h1>Statistics</h1>
+            <div class="table-wrapper">
+
+            <table>
+                <thead>
+                <tr>
+                    <th><span class="th-content">Name</span></th>
+                    <th><span class="th-content">Speciality</span></th>
+                    <th><span class="th-content">Age</span></th>
+                    <th><span class="th-content">Gender</span></th>
+                    <th><span class="th-content">Nationality</span></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td>John Pork</td>
+                    <td>Chemistry</td>
+                    <td>35</td>
+                    <td>Male</td>
+                    <td>Ukraine</td>
+                </tr>
+                <tr>
+                    <td>Mary Smith</td>
+                    <td>Mathematics</td>
+                    <td>42</td>
+                    <td>Female</td>
+                    <td>USA</td>
+                </tr>
+                <tr>
+                    <td>Alex Johnson</td>
+                    <td>Physics</td>
+                    <td>39</td>
+                    <td>Male</td>
+                    <td>UK</td>
+                </tr>
+                <tr>
+                    <td>Sophia Brown</td>
+                    <td>Biology</td>
+                    <td>31</td>
+                    <td>Female</td>
+                    <td>Canada</td>
+                </tr>
+                <tr>
+                    <td>Michael Williams</td>
+                    <td>History</td>
+                    <td>45</td>
+                    <td>Male</td>
+                    <td>Germany</td>
+                </tr>
+                <tr>
+                    <td>Emma Davis</td>
+                    <td>Geography</td>
+                    <td>29</td>
+                    <td>Female</td>
+                    <td>Australia</td>
+                </tr>
+                <tr>
+                    <td>David Miller</td>
+                    <td>English</td>
+                    <td>38</td>
+                    <td>Male</td>
+                    <td>France</td>
+                </tr>
+                <tr>
+                    <td>Olivia Wilson</td>
+                    <td>Art</td>
+                    <td>33</td>
+                    <td>Female</td>
+                    <td>Italy</td>
+                </tr>
+                <tr>
+                    <td>Lucas Anderson</td>
+                    <td>Music</td>
+                    <td>41</td>
+                    <td>Male</td>
+                    <td>Sweden</td>
+                </tr>
+                <tr>
+                    <td>Isabella Thomas</td>
+                    <td>Philosophy</td>
+                    <td>36</td>
+                    <td>Female</td>
+                    <td>Netherlands</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <div class ="pages">
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                ...
+                <button class="last">Last</button>
+            </div>
+        </section>
+        <hr>
+        <section class="favourites">
+            <h1>Favourites</h1>
+
+            <div class="favourites-row-wrapper">
+                <button class="table-arrow arrow-left">
+                    <img src="images/arrow-left.svg" alt="Left">
+                </button>
+
+
+                <div class="favourites-row">
+
+                <div class="teacher-card">
+                    <div class="avatar-wrapper">
+                        <img src="images/ab67616d00001e02ffe8ad517ca19e5e1edf2ff3.jpeg" alt="John Pork Photo">
+                        <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                    </div>
+                    <div class="teacher-info">
+                        <h2>John<br>Pork</h2>
+                        <p class="country">USA</p>
+                    </div>
+                </div>
+                <div class="teacher-card">
+                    <div class="avatar-wrapper">
+                        <img src="images/ab67616d00001e02ffe8ad517ca19e5e1edf2ff3.jpeg" alt="John Pork Photo">
+                        <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                    </div>
+                    <div class="teacher-info">
+                        <h2>John<br>Pork</h2>
+                        <p class="country">USA</p>
+                    </div>
+                </div>
+
+                <div class="teacher-card">
+                    <div class="avatar-wrapper">
+                        <img src="images/ab67616d00001e02ffe8ad517ca19e5e1edf2ff3.jpeg" alt="John Pork Photo">
+                        <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                    </div>
+                    <div class="teacher-info">
+                        <h2>John<br>Pork</h2>
+                        <p class="country">USA</p>
+                    </div>
+                </div>
+
+                <div class="teacher-card">
+                    <div class="avatar-wrapper">
+                        <img src="images/ab67616d00001e02ffe8ad517ca19e5e1edf2ff3.jpeg" alt="John Pork Photo">
+                        <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                    </div>
+                    <div class="teacher-info">
+                        <h2>John<br>Pork</h2>
+                        <p class="country">USA</p>
+                    </div>
+                </div>
+
+                <div class="teacher-card">
+                    <div class="avatar-wrapper">
+                        <img src="images/ab67616d00001e02ffe8ad517ca19e5e1edf2ff3.jpeg" alt="John Pork Photo">
+                        <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                    </div>
+                    <div class="teacher-info">
+                        <h2>John<br>Pork</h2>
+                        <p class="country">USA</p>
+                    </div>
+                </div>
+
+                <div class="teacher-card">
+                    <div class="avatar-wrapper">
+                        <img src="images/ab67616d00001e02ffe8ad517ca19e5e1edf2ff3.jpeg" alt="John Pork Photo">
+                        <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+                    </div>
+                    <div class="teacher-info">
+                        <h2>John<br>Pork</h2>
+                        <p class="country">USA</p>
+                    </div>
+                </div>
+            </div>
+                <button class="table-arrow arrow-right">
+                    <img src="images/arrow-right.svg" alt="Right">
+                </button>
+            </div>
+
+        </section>
+
+
+    </section>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content add-teacher-modal">
+            <div class="header">
+                <h2>Add Teacher</h2>
+                <span class="close add-close">&times;</span>
+            </div>
+            <form id="addTeacherForm">
+                <div class="input-group">
+                    <span class="input-label">Name</span>
+                    <input type="text" class="input-field" placeholder="Enter name" required>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-label">Speciality</span>
+                    <select class="input-field" required>
+                        <option value="">Speciality</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="English">English</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Biology">Biology</option>
+                        <option value="C++">C++</option>
+                        <option value="History">History</option>
+                        <option value="Art">Art</option>
+                    </select>
+                </div>
+
+                <div class="kill-me">
+                    <div class="input-group">
+                        <span class="input-label">Country</span>
+                        <select class="input-field" required>
+                            <option value="">Country</option>
+                            <option value="Ukraine">Ukraine</option>
+                            <option value="USA">USA</option>
+                            <option value="UK">UK</option>
+                            <option value="Israel">Israel</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Germany">Germany</option>
+                            <option value="Australia">Australia</option>
+                            <option value="France">France</option>
+                            <option value="Italy">Italy</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-label">City</span>
+                        <input type="text" class="input-field" placeholder="City" required>
+                    </div>
+                </div>
+
+                <div class="kill-me">
+                    <div class="input-group">
+                        <span class="input-label">Email</span>
+                        <input type="email" class="input-field" placeholder="Email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-label">Phone</span>
+                        <input type="tel" class="input-field" placeholder="Phone" required>
+                    </div>
+                </div>
+
+                <div class="kill-me">
+                    <div class="input-group">
+                        <span class="input-label">Date of Birth</span>
+                        <input type="date" class="input-field" required>
+                    </div>
+
+                    <div class="input-group hidden-object">
+                        <span class="input-label">Optional</span>
+                        <input type="text" class="input-field" placeholder="Optional">
+                    </div>
+                </div>
+
+                <div class="radio-group">
+                    <span class="input-label">Sex</span>
+                    <label>Male <input type="radio" name="sex" value="Male" required></label>
+                    <label>Female <input type="radio" name="sex" value="Female" required></label>
+                </div>
+
+                <div class="radio-group">
+                    <span class="input-label">Background color</span>
+                    <input type="color" class="input-field" value="#ffffff">
+                </div>
+
+                <div class="input-group">
+                    <span class="input-label">Notes</span>
+                    <textarea class="input-field" placeholder="Notes (optional)"></textarea>
+                </div>
+
+                <button type="submit">Add</button>
+            </form>
+
+        </div>
+    </div>
+    <div id="viewModal" class="modal">
+        <div class="modal-content view-teacher-modal">
+            <div class="header">
+                <h2>Teacher Info</h2>
+                <span class="close view-close">&times;</span>
+            </div>
+
+            <div class="main-teacher-info">
+                <img id="teacherPhoto" src="" alt="Teacher Photo" class="teacher-photo">
+
+                <div class="text-info">
+                    <h2 id="teacherName"></h2>
+                    <p id="teacherSpeciality"></p>
+                    <p id="teacherLocation"></p>
+                    <p id="teacherAgeGender"></p>
+                    <p id="teacherEmail"></p>
+                    <p id="teacherPhone"></p>
+                </div>
+
+                <img class="favorite-star-icon" src="images/Star 1.svg" alt="Favorite Star">
+            </div>
+
+            <p id="teacherNotes"></p>
+            <p id="toggleMap">Show on map</p>
+        </div>
+    </div>
+
+
+    <footer>
+        <p>
+            Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor.
+            Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer
+            nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra
+            inceptos himenaeos.
+
+            <br><br>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem
+            placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor.
+            Pulvinar vivamus fringilla lacus nec metus bibendum egestas. <br><br>Iaculis massa nisl malesuada lacinia integer
+            nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra
+            inceptos himenaeos.
+        </p>
+
+        <section class="tabs">
+            <div class="tabs-buttons">
+                <button class="tab active">Teachers</button>
+                <button class="tab">Statistics</button>
+                <button class="tab">Favourites</button>
+                <button class="tab">About</button>
+            </div>
+            <button class="add-teacher">Add teacher</button>
+        </section>
+    </footer>
+</main>
+
+
+</body>
 </html>

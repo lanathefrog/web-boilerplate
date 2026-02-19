@@ -1,0 +1,55 @@
+.favourites {
+  position: relative;
+  padding: 0 20px;
+
+  h1 {
+    margin-bottom: 15px;
+  }
+
+  .favourites-row-wrapper {
+    position: relative;
+
+    .table-arrow {
+      position: absolute;
+      top: 40%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 40px;
+      height: 100px;
+      padding: 0;
+      z-index: 2;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .arrow-left {
+      left: -50px;
+    }
+
+    .arrow-right {
+      right: -50px;
+    }
+
+    .favourites-row {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 200px;
+      gap: 20px;
+      overflow-x: auto;
+      padding: 10px 0;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+}

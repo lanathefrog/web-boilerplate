@@ -1,0 +1,101 @@
+.teacher-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  border-radius: 10px;
+  transition: transform 0.2s;
+  position: relative;
+  flex-wrap: wrap;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+
+  img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    transition: border-color 0.3s;
+
+
+  }
+
+  .avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 5px solid $primary-color;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    transition: border-color 0.3s;
+
+    &:hover {
+      border-color: darken($primary-color, 30%);
+        cursor: pointer;
+    }
+
+    .initials {
+      font-size: 36px;
+      font-weight: bold;
+      color: $primary-color;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+  }
+
+  .teacher-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+
+    h2 {
+      margin: 0;
+      font-size: (1.25 * $font-size-base);
+      line-height: (1.25 * $line-height-heading);
+      text-align: center;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    p {
+      margin: 2px 0;
+      font-size: $font-size-small;
+      color: #555;
+      text-align: center;
+
+
+    }
+
+    .field {
+      font-size: $font-size-base;
+      color: #808080;
+    }
+
+    .country {
+      font-size: (0.85 * $font-size-small);
+      color: #000000;
+    }
+  }
+
+  .favorite-star-icon {
+    z-index: 10;
+    border: none;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+  }
+
+}

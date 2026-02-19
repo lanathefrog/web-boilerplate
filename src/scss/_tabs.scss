@@ -1,0 +1,59 @@
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  flex-wrap: wrap;
+  gap: 10px;
+  .tabs-buttons {
+    display: inline-flex;
+    gap: 15px;
+
+    @media (max-width: 904px) {
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+  }
+
+  button {
+    font-size: $font-size-base;
+    color:  $primary-color;
+  }
+
+  .add-teacher {
+    padding: 12px;
+    background: none;
+    border: 2px solid  $primary-color;
+    transition: 0.3s all ease;
+
+    &:hover {
+      background-color: $primary-color;
+      color: white;
+      cursor: pointer;
+    }
+
+    @media (max-width: 904px) {
+      width: 100%;
+      max-width: 200px;
+      margin: 0 auto;
+    }
+  }
+
+  .tab {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    background: none;
+    padding: 0;
+    margin-right: 15px;
+
+    &.active {
+      font-weight: bold;
+    }
+
+    &:hover {
+      color: darken($primary-color, 30%);
+    }
+  }
+}
